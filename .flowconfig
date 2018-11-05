@@ -1,0 +1,10 @@
+[ignore]
+<PROJECT_ROOT>/demo/
+<PROJECT_ROOT>/lib/
+.*/node_modules/.*\.json$
+
+[libs]
+
+[options]
+module.system.node.resolve_dirname=src
+module.system.node.resolve_dirname=node_modules
