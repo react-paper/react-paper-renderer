@@ -11,7 +11,7 @@ export function useScope(settings?: any) {
   const scope = useRef(null)
 
   useEffect(() => {
-    if (scope.current && canvas.current) {
+    if (canvas.current) {
       scope.current = new PaperScope()
       scope.current.setup(canvas.current)
       debug('[scope] create', scope.current._id)

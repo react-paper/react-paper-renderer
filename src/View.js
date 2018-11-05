@@ -1,7 +1,7 @@
 // @flow
 
 // $FlowFixMe
-import React, { useEffect, forwardRef, useImperativeMethods } from 'react'
+import React, { forwardRef, useImperativeMethods } from 'react'
 
 import { debug } from './utils'
 import { useScope, useRender, useResize } from './hooks'
@@ -23,14 +23,7 @@ const View = forwardRef(({ children, settings, ...other }: Props, ref: any) => {
     getScope: () => scope.current,
   }))
 
-  useEffect(() => {
-    debug('[view] mount')
-    return () => {
-      debug('[view] unmount')
-    }
-  }, [])
-
-  debug('[view] render')
+  debug('[view] ************')
 
   return <canvas {...other} ref={canvas} />
 })
