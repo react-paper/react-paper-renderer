@@ -15,7 +15,7 @@ class Grid extends Component<Props> {
 
   constructor(props: Props) {
     super(props)
-    this.layer = React.createRef()
+    this.layer = React.createRef<any>()
   }
 
   componentDidMount() {

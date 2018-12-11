@@ -1,315 +1,166 @@
 // @flow
-/*eslint no-unused-vars: 0*/
 
+import Paper from 'paper/dist/paper-core'
 import Reconciler from 'react-reconciler'
 import {
   unstable_now as now,
   unstable_scheduleCallback as scheduleDeferredCallback,
   unstable_cancelCallback as cancelDeferredCallback,
-} from 'scheduler';
+} from 'scheduler'
 import invariant from 'fbjs/lib/invariant'
 import emptyObject from 'fbjs/lib/emptyObject'
 
-import {
-  Group,
-  Item,
-  Layer,
-  Path,
-  PointText,
-  Raster,
-  Tool,
-} from 'paper/dist/paper-core'
+import * as Type from './types'
 
-import TYPES from './types'
-
-import { arePointsEqual } from './utils'
-
-function applyItemProps(instance, props, prevProps = {}) {
-  if (props.blendMode !== prevProps.blendMode) {
-    instance.blendMode = props.blendMode
-  }
-  if (props.clipMask !== prevProps.clipMask) {
-    instance.clipMask = props.clipMask
-  }
-  if (props.opacity !== prevProps.opacity) {
-    instance.opacity = props.opacity
-  }
-  if (props.rotation !== prevProps.rotation) {
-    instance.rotation = props.rotation;
-  }
-  if (props.selected !== prevProps.selected) {
-    instance.selected = props.selected
-  }
-  if (props.visible !== prevProps.visible) {
-    instance.visible = props.visible
-  }
-}
-
-function applyStyleProps(instance, props) {
-  if (props.fillColor) {
-    instance.fillColor = props.fillColor
-  }
-  if (props.strokeColor) {
-    instance.strokeColor = props.strokeColor
-  }
-  if (props.selected) {
-    instance.selected = props.selected
-  }
-}
-
-function applyGroupProps(instance, props, prevProps = {}) {
-  applyItemProps(instance, props, prevProps)
-  if (!arePointsEqual(props.center, prevProps.center)) {
-    instance.translate([
-      props.center[0] - prevProps.center[0],
-      props.center[1] - prevProps.center[1],
-    ])
-  }
-  if (!arePointsEqual(props.pivot, prevProps.pivot)) {
-    instance.pivot = props.pivot
-  }
-  if (!arePointsEqual(props.position, prevProps.position)) {
-    instance.position = props.position
-  }
-  if (props.rotation !== prevProps.rotation) {
-    // in case null is set
-    const rotation = props.rotation ? props.rotation : 0
-    const prevRotation = prevProps.rotation ? prevProps.rotation : 0
-    instance.rotate(rotation - prevRotation)
-  }
-  // TODO: check if this is ok
-  if (props.strokeColor !== prevProps.strokeColor) {
-    instance.strokeColor = props.strokeColor
-  }
-  if (props.fillColor !== prevProps.fillColor) {
-    instance.fillColor = props.fillColor
-  }
-}
-
-function applyLayerProps(instance, props, prevProps = {}) {
-  applyItemProps(instance, props, prevProps)
-  if (props.active !== prevProps.active && props.active === true) {
-    instance.activate()
-  }
-  if (props.locked !== prevProps.locked) {
-    instance.locked = props.locked
-  }
-  // TODO: check if this is ok
-  if (props.strokeColor !== prevProps.strokeColor) {
-    instance.strokeColor = props.strokeColor
-    instance.children.forEach(child => {
-      if (child instanceof Path) {
-        child.strokeColor = props.strokeColor
+const applyProp = {
+  default: (prop, instance, props, prevProps) => {
+    if (props[prop] !== prevProps[prop]) {
+      instance[prop] = props[prop]
+    }
+  },
+  active: (instance, props, prevProps) => {
+    if (props.active && props.active !== prevProps.active) {
+      instance.activate()
+    }
+  },
+  point: (instance, props, prevProps) => {
+    if (props.point !== prevProps.point) {
+      instance.translate([
+        props.point[0] - prevProps.point[0],
+        props.point[1] - prevProps.point[1],
+      ])
+    }
+  },
+  center: (instance, props, prevProps) => {
+    if (props.center !== prevProps.center) {
+      instance.translate([
+        props.center[0] - prevProps.center[0],
+        props.center[1] - prevProps.center[1],
+      ])
+    }
+  },
+  radius: (instance, props, prevProps) => {
+    if (props.radius !== prevProps.radius) {
+      instance.scale(props.radius / prevProps.radius)
+    }
+  },
+  rotation: (instance, props, prevProps) => {
+    if (props.rotation !== prevProps.rotation) {
+      if (props.rotation && prevProps.rotation) {
+        instance.rotate(props.rotation - prevProps.rotation)
+      } else {
+        instance.rotation = props.rotation
       }
-    })
-  }
-  if (props.fillColor !== prevProps.fillColor) {
-    instance.fillColor = props.fillColor
-  }
+    }
+  },
+  size: (instance, props, prevProps) => {
+    if (props.size !== prevProps.size) {
+      instance.scale(
+        props.size[0] / prevProps.size[0],
+        props.size[1] / prevProps.size[1]
+      )
+    }
+  },
+  scaling: (instance, props, prevProps) => {
+    if (props.scaling !== prevProps.scaling) {
+      if (instance.applyMatrix) {
+        instance.scaling = props.scaling / prevProps.scaling
+      } else {
+        instance.scaling = props.scaling
+      }
+    }
+  },
 }
 
-function applyPathProps(instance, props, prevProps = {}) {
-  applyItemProps(instance, props, prevProps)
-  if (!arePointsEqual(props.center, prevProps.center)) {
-    instance.translate([
-      props.center[0] - prevProps.center[0],
-      props.center[1] - prevProps.center[1],
-    ])
-  }
-  if (!arePointsEqual(props.pivot, prevProps.pivot)) {
-    instance.pivot = props.pivot
-    instance.position = props.position
-  }
-  if (!arePointsEqual(props.position, prevProps.position)) {
-    instance.position = props.position
-  }
-  if (props.closed !== prevProps.closed) {
-    instance.closed = props.closed
-  }
-  if (props.dashArray !== prevProps.dashArray) {
-    instance.dashArray = props.dashArray
-  }
-  if (props.dashOffset !== prevProps.dashOffset) {
-    instance.dashOffset = props.dashOffset
-  }
-  if (props.fillColor !== prevProps.fillColor) {
-    instance.fillColor = props.fillColor
-  }
-  if (props.pathData !== prevProps.pathData) {
-    instance.pathData = props.pathData
-  }
-  if (!arePointsEqual(props.point, prevProps.point)) {
-    instance.translate([
-      props.point[0] - prevProps.point[0],
-      props.point[1] - prevProps.point[1],
-    ])
-  }
-  if (props.rotation !== prevProps.rotation) {
-    // in case null is set
-    const rotation = props.rotation ? props.rotation : 0
-    const prevRotation = prevProps.rotation ? prevProps.rotation : 0
-    instance.rotate(rotation - prevRotation)
-  }
-  if (props.strokeCap !== prevProps.strokeCap) {
-    instance.strokeCap = props.strokeCap
-  }
-  if (props.strokeColor !== prevProps.strokeColor) {
-    instance.strokeColor = props.strokeColor
-  }
-  if (props.strokeJoin !== prevProps.strokeJoin) {
-    instance.strokeJoin = props.strokeJoin
-  }
-  if (props.strokeScaling !== prevProps.strokeScaling) {
-    instance.strokeScaling = props.strokeScaling
-  }
-  if (props.strokeWidth !== prevProps.strokeWidth) {
-    instance.strokeWidth = props.strokeWidth
-  }
+function applyProps(instance, props, prevProps = {}) {
+  Object.keys(props).forEach(prop => {
+    if (prop !== 'children' && prop !== 'id') {
+      if (applyProp[prop]) {
+        applyProp[prop](instance, props, prevProps)
+      } else {
+        applyProp.default(prop, instance, props, prevProps)
+      }
+    }
+  })
 }
 
-function applyRectangleProps(instance, props, prevProps = {}) {
-  applyPathProps(instance, props, prevProps)
-  if (!arePointsEqual(props.size, prevProps.size)) {
-    instance.scale(
-      props.size[0] / prevProps.size[0],
-      props.size[1] / prevProps.size[1]
-    )
-  }
-}
+function getSymbolDefinition(scope, { id, name, svg }) {
+  const key = id || name
+  if (!key) throw new Error(`Missing id or name prop on SymbolItem`)
+  if (!svg) throw new Error(`Missing svg prop on SymbolItem`)
 
-function applyCircleProps(instance, props, prevProps = {}) {
-  applyPathProps(instance, props, prevProps)
-  if (props.radius !== prevProps.radius) {
-    instance.scale(props.radius / prevProps.radius)
+  // return cached definition
+  if (scope.symbols && scope.symbols[key]) {
+    return scope.symbols[key]
   }
-}
 
-function applyEllipseProps(instance, props, prevProps = {}) {
-  applyRectangleProps(instance, props, prevProps)
-}
+  // create symbols cache
+  if (!scope.symbols) {
+    scope.symbols = {}
+  }
 
-function applyArcProps(instance, props, prevProps = {}) {
-  applyPathProps(instance, props, prevProps)
-  if (!arePointsEqual(props.from, prevProps.from)) {
-    instance.from = props.from
-  }
-  if (!arePointsEqual(props.to, prevProps.to)) {
-    instance.to = props.to
-  }
-  if (!arePointsEqual(props.through, prevProps.through)) {
-    instance.through = props.through
-  }
-}
+  // create definition
+  const definition = new scope.SymbolDefinition(
+    scope.project.importSVG(svg)
+  )
+  scope.symbols[key] = definition
 
-function applyRasterProps(instance, props, prevProps = {}) {
-  applyItemProps(instance, props, prevProps)
-  if (props.source !== prevProps.source) {
-    instance.source = props.source
-  }
-  if (props.onLoad !== prevProps.onLoad) {
-    instance.onLoad = props.onLoad
-  }
-}
-
-function applyPointTextProps(instance, props, prevProps = {}) {
-  applyItemProps(instance, props, prevProps)
-  if (props.content !== prevProps.content) {
-    instance.content = props.content
-  }
-  if (props.fillColor !== prevProps.fillColor) {
-    instance.fillColor = props.fillColor
-  }
-  if (props.fontFamily !== prevProps.fontFamily) {
-    instance.fontFamily = props.fontFamily
-  }
-  if (props.fontSize !== prevProps.fontSize) {
-    instance.fontSize = props.fontSize
-  }
-  if (props.fontWeight !== prevProps.fontWeight) {
-    instance.fontWeight = props.fontWeight
-  }
-  if (!arePointsEqual(props.point, prevProps.point)) {
-    instance.translate([
-      props.point[0] - prevProps.point[0],
-      props.point[1] - prevProps.point[1],
-    ])
-  }
-}
-
-function applyToolProps(instance, props, prevProps = {}) {
-  if (props.active !== prevProps.active && props.active === true) {
-    instance.activate()
-  }
-  if (props.onMouseDown !== prevProps.onMouseDown) {
-    instance.onMouseDown = props.onMouseDown
-  }
-  if (props.onMouseDrag !== prevProps.onMouseDrag) {
-    instance.onMouseDrag = props.onMouseDrag
-  }
-  if (props.onMouseMove !== prevProps.onMouseMove) {
-    instance.onMouseMove = props.onMouseMove
-  }
-  if (props.onMouseUp !== prevProps.onMouseUp) {
-    instance.onMouseUp = props.onMouseUp
-  }
-  if (props.onKeyUp !== prevProps.onKeyUp) {
-    instance.onKeyUp = props.onKeyUp
-  }
-  if (props.onKeyDown !== prevProps.onKeyDown) {
-    instance.onKeyDown = props.onKeyDown
-  }
+  // return created definition
+  return definition
 }
 
 const PaperRenderer = Reconciler({
-  createInstance(type, props, paperScope) {
-    const { children, ...paperProps } = props
+  // eslint-disable-next-line
+  createInstance(type, { children, ...props }, scope) {
     let instance = {}
 
     switch (type) {
-      case TYPES.TOOL:
-        instance = new Tool(paperProps)
-        instance._applyProps = applyToolProps
+      case Type.View:
+        instance = scope.view
         break
-      case TYPES.CIRCLE:
-        instance = new Path.Circle(paperProps)
-        instance._applyProps = applyCircleProps
+      case Type.Tool:
+        instance = new scope.Tool()
         break
-      case TYPES.ELLIPSE:
-        instance = new Path.Ellipse(paperProps)
-        instance._applyProps = applyEllipseProps
+      case Type.Layer:
+        instance = new scope.Layer(props)
         break
-      case TYPES.GROUP:
-        instance = new Group(paperProps)
-        instance._applyProps = applyGroupProps
+      case Type.Group:
+        instance = new scope.Group(props)
         break
-      case TYPES.LAYER:
-        instance = new Layer(paperProps)
-        instance._applyProps = applyLayerProps
+      case Type.Path:
+        instance = new scope.Path(props)
         break
-      case TYPES.LINE:
-        instance = new Path.Line(paperProps)
-        instance._applyProps = applyPathProps
+      case Type.Arc:
+        instance = new scope.Path.Arc(props)
         break
-      case TYPES.PATH:
-        instance = new Path(paperProps)
-        instance._applyProps = applyPathProps
+      case Type.Circle:
+        instance = new scope.Path.Circle(props)
         break
-      case TYPES.POINTTEXT:
-        instance = new PointText(paperProps)
-        instance._applyProps = applyPointTextProps
+      case Type.Ellipse:
+        instance = new scope.Path.Ellipse(props)
         break
-      case TYPES.RECTANGLE:
-        instance = new Path.Rectangle(paperProps)
-        instance._applyProps = applyRectangleProps
+      case Type.Line:
+        instance = new scope.Path.Line(props)
         break
-      case TYPES.ARC:
-        instance = new Path.Arc(paperProps)
-        instance._applyProps = applyArcProps
+      case Type.Rectangle:
+        instance = new scope.Path.Rectangle(props)
         break
-      case TYPES.RASTER: {
-        const { onLoad, ...rasterProps } = paperProps
-        instance = new Raster(rasterProps)
-        instance._applyProps = applyRasterProps
+      case Type.RegularPolygon:
+        instance = new scope.Path.RegularPolygon(props)
+        break
+      case Type.SymbolItem: {
+        // eslint-disable-next-line
+        const { svg, ...other } = props
+        const definition = getSymbolDefinition(scope, props)
+        instance = new scope.SymbolItem(definition, other)
+        break
+      }
+      case Type.PointText:
+        instance = new scope.PointText(props)
+        break
+      case Type.Raster: {
+        const { onLoad, ...other } = props
+        instance = new scope.Raster(other)
         if (typeof onLoad === 'function') {
           instance.onLoad = () => onLoad(instance)
         }
@@ -324,45 +175,47 @@ const PaperRenderer = Reconciler({
         break
     }
 
-    // apply data type
     if (!instance.data) {
-      instance.data = { type }
-    } else if (!instance.data.type) {
-      instance.data.type = type
+      instance.data = {}
     }
 
-    invariant(instance, 'PaperRenderer does not support the type "%s"', type)
+    instance.data.type = type
+
+    invariant(
+      instance,
+      'PaperRenderer does not support the type "%s"',
+      type
+    )
 
     return instance
   },
 
-  createTextInstance(text, rootContainerInstance, paperScope) {
+  createTextInstance(text) {
     return text
   },
 
   appendInitialChild(parentInstance, child) {
     if (typeof child === 'string') {
-      // Noop for string children of Text (eg <Text>{'foo'}{'bar'}</Text>)
       invariant(false, 'Text children should already be flattened.')
-    } else if (parentInstance instanceof Group && child instanceof Item) {
+    }
+    if (
+      parentInstance instanceof Paper.Group &&
+      child instanceof Paper.Item
+    ) {
       child.addTo(parentInstance)
     }
   },
 
-  finalizeInitialChildren(domElement, type, props) {
-    // If applyMatrix=true, group props should be applied after all children have benn added.
-    // If applyMatrix=false, only style-related props (ex. fillColor, strokeColor) should be applied.
-    // TODO: add case for Layer
+  finalizeInitialChildren(instance, type, props) {
     switch (type) {
-      case TYPES.GROUP:
-        if (domElement.applyMatrix) {
-          applyGroupProps(domElement, props)
-        } else {
-          applyStyleProps(domElement, props)
-        }
+      case Type.View:
+      case Type.Layer:
+      case Type.Group:
+      case Type.Tool:
+        applyProps(instance, props)
         break
       default:
-        break;
+        break
     }
     return false
   },
@@ -375,7 +228,7 @@ const PaperRenderer = Reconciler({
     // Noop
   },
 
-  prepareUpdate(domElement, type, oldProps, newProps) {
+  prepareUpdate() {
     return true
   },
 
@@ -383,11 +236,11 @@ const PaperRenderer = Reconciler({
     // Noop
   },
 
-  resetTextContent(domElement) {
+  resetTextContent() {
     // Noop
   },
 
-  shouldDeprioritizeSubtree(type, props) {
+  shouldDeprioritizeSubtree() {
     return false
   },
 
@@ -415,7 +268,8 @@ const PaperRenderer = Reconciler({
 
   shouldSetTextContent(type, props) {
     return (
-      typeof props.children === 'string' || typeof props.children === 'number'
+      typeof props.children === 'string' ||
+      typeof props.children === 'number'
     )
   },
 
@@ -423,7 +277,10 @@ const PaperRenderer = Reconciler({
     if (child.parentNode === parentInstance) {
       child.remove()
     }
-    if (parentInstance instanceof Group && child instanceof Item) {
+    if (
+      parentInstance instanceof Paper.Group &&
+      child instanceof Paper.Item
+    ) {
       child.addTo(parentInstance)
     }
   },
@@ -432,7 +289,10 @@ const PaperRenderer = Reconciler({
     if (child.parentNode === parentInstance) {
       child.remove()
     }
-    if (parentInstance instanceof Group && child instanceof Item) {
+    if (
+      parentInstance instanceof Paper.Group &&
+      child instanceof Paper.Item
+    ) {
       child.addTo(parentInstance)
     }
   },
@@ -443,9 +303,9 @@ const PaperRenderer = Reconciler({
       'PaperRenderer: Can not insert node before itself'
     )
     if (
-      parentInstance instanceof Group &&
-      child instanceof Path &&
-      beforeChild instanceof Path
+      parentInstance instanceof Paper.Group &&
+      child instanceof Paper.Path &&
+      beforeChild instanceof Paper.Path
     ) {
       child.insertAbove(beforeChild)
     }
@@ -457,42 +317,44 @@ const PaperRenderer = Reconciler({
       'PaperRenderer: Can not insert node before itself'
     )
     if (
-      parentInstance instanceof Group &&
-      child instanceof Path &&
-      beforeChild instanceof Path
+      parentInstance instanceof Paper.Group &&
+      child instanceof Paper.Path &&
+      beforeChild instanceof Paper.Path
     ) {
       child.insertAbove(beforeChild)
     }
   },
 
   removeChild(parentInstance, child) {
-    child.remove()
+    if (typeof child.remove === 'function') {
+      child.remove()
+    }
   },
 
   removeChildFromContainer(parentInstance, child) {
-    child.remove()
+    if (typeof child.remove === 'function') {
+      child.remove()
+    }
   },
 
-  commitTextUpdate(textInstance, oldText, newText) {
+  commitTextUpdate() {
     // Noop
   },
 
-  commitMount(instance, type, newProps) {
+  commitMount() {
     // Noop
   },
 
-  commitUpdate(instance, updatePayload, type, oldProps, newProps, paperScope) {
-    instance._applyProps(instance, newProps, oldProps)
+  commitUpdate(instance, updatePayload, type, oldProps, newProps) {
+    applyProps(instance, newProps, oldProps)
   },
 })
 
-/*
 PaperRenderer.injectIntoDevTools({
   findFiberByHostInstance: () => null,
   bundleType: process.env.NODE_ENV === 'production' ? 0 : 1,
-  rendererPackageName: 'components/renderer',
-  version: '2.0.0',
+  rendererPackageName: 'react-paper-renderer',
+  version: '3.0.0-alpha.0',
 })
-*/
 
 export default PaperRenderer
