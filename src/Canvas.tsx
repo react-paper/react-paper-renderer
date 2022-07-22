@@ -1,7 +1,7 @@
 import React, { FC, ComponentProps, useEffect, useRef } from 'react';
 import { FiberRoot } from 'react-reconciler';
 import { LegacyRoot } from 'react-reconciler/constants';
-import { PaperScope } from 'paper/dist/paper-core';
+import { PaperScope, _scopes } from 'paper/dist/paper-core';
 import { Renderer } from './Renderer';
 
 const canvasStyles = {
@@ -13,6 +13,7 @@ type Props = ComponentProps<'canvas'> & {
   width: number;
   height: number;
   settings?: paper.PaperScopeSettings;
+  scopeRef?: React.MutableRefObject<paper.PaperScope | null>;
   onScopeReady?: (scope: paper.PaperScope) => void;
 };
 
@@ -21,6 +22,7 @@ export const Canvas: FC<Props> = ({
   width,
   height,
   settings,
+  scopeRef,
   onScopeReady,
   ...other
 }) => {
@@ -29,12 +31,13 @@ export const Canvas: FC<Props> = ({
   const root = useRef<FiberRoot | null>(null);
 
   useEffect(() => {
+    // create
     if (canvas.current instanceof HTMLCanvasElement) {
-      // create paper scope
       scope.current = new PaperScope();
-      // apply settings
+      if (scopeRef) scopeRef.current = scope.current;
+      // settings
       Object.assign(scope.current.settings, settings);
-      // setup empty project and view
+      // setup project and view
       scope.current.setup(canvas.current);
       // create renderer
       root.current = Renderer.createContainer(
@@ -52,6 +55,7 @@ export const Canvas: FC<Props> = ({
         onScopeReady(scope.current);
       }
     }
+
     // destroy
     return () => {
       if (root.current) {
@@ -61,6 +65,7 @@ export const Canvas: FC<Props> = ({
       scope.current = null;
       root.current = null;
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -78,7 +83,15 @@ export const Canvas: FC<Props> = ({
     }
   }, [width, height]);
 
-  return <canvas {...other} ref={canvas} style={canvasStyles} resize="true" />;
+  return (
+    <canvas
+      {...other}
+      ref={canvas}
+      style={canvasStyles}
+      resize="true"
+      role="img"
+    />
+  );
 };
 
 declare global {

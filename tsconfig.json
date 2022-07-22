@@ -9,9 +9,10 @@
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "types": ["node", "jest"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

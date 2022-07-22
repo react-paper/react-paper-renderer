@@ -2,7 +2,7 @@ import Reconciler from 'react-reconciler';
 import { DefaultEventPriority } from 'react-reconciler/constants';
 import Paper from 'paper/dist/paper-core';
 
-import * as Item from './types';
+import * as Item from './Items';
 
 // https://github.com/facebook/react/tree/master/packages/react-reconciler
 // https://github.com/facebook/react/blob/master/packages/react-art/src/ReactARTHostConfig.js
@@ -20,21 +20,7 @@ type Instance =
   | paper.PointText
   | paper.Raster;
 
-type Type =
-  | 'View'
-  | 'Group'
-  | 'Layer'
-  | 'Path'
-  | 'Line'
-  | 'Circle'
-  | 'Rectangle'
-  | 'Ellipse'
-  | 'Arc'
-  | 'RegularPolygon'
-  | 'PointText'
-  | 'Raster'
-  | 'SymbolItem'
-  | 'Tool';
+type Type = keyof typeof Item;
 
 type Index<T> = { [key: string]: T };
 type Props = Index<any>;
@@ -399,6 +385,10 @@ export const Renderer = Reconciler({
   //#endregion
 
   //#region Renderer necessary stuff
+  clearContainer: () => {
+    // Noop
+  },
+
   preparePortalMount: () => {
     // Noop
   },
