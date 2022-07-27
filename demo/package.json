@@ -10,21 +10,29 @@
   },
   "dependencies": {
     "immutability-helper": "^3.1.1",
-    "next": "12.2.3",
-    "paper": "0.12.11",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-reconciler": "0.26.1",
-    "scheduler": "0.20.1"
+    "next": "^12.2.3",
+    "paper": "^0.12.11",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-reconciler": "^0.26.1",
+    "react-use-measure": "^2.1.1",
+    "scheduler": "^0.20.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/node": "16.10.0",
-    "@types/react": "17.0.2",
-    "@types/react-dom": "17.0.2",
-    "@types/react-reconciler": "0.26.1",
-    "@types/scheduler": "0.16.2",
-    "eslint": "8.20.0",
-    "eslint-config-next": "12.2.3",
+    "@types/node": "^16.10.0",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "@types/react-reconciler": "^0.26.1",
+    "@types/scheduler": "^0.16.2",
+    "@types/uuid": "^8.3.4",
+    "eslint": "^8.20.0",
+    "eslint-config-next": "^12.2.3",
+    "node-loader": "^2.0.0",
     "typescript": "^4.7.4"
+  },
+  "resolutions": {
+    "@types/react": "17.0.2",
+    "@types/react-dom": "17.0.2"
   }
 }

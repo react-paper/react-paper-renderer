@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react';
-import { Tool } from 'react-paper-renderer';
-import { useReducer } from '../context';
+import React, { useCallback } from "react";
+import { Tool } from "react-paper-renderer";
+import { usePaper } from "../context";
 
-const NAME = 'Delete';
+const NAME = "Delete";
 
 export const Delete: React.FC = () => {
-  const [state, dispatch] = useReducer();
+  const [state, dispatch] = usePaper();
 
   const handleMouseDown = useCallback(
     (event: paper.ToolEvent) => {
@@ -19,7 +19,7 @@ export const Delete: React.FC = () => {
       });
       if (!hit || !hit.item) return;
 
-      dispatch({ type: 'removeItem', index: hit.item.index });
+      dispatch({ type: "removeItem", index: hit.item.index });
     },
     [dispatch, state.scope]
   );

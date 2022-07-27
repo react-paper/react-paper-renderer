@@ -1,12 +1,12 @@
-import React, { useCallback, useRef } from 'react';
-import { Path } from 'paper/dist/paper-core';
-import { Tool } from 'react-paper-renderer';
-import { useReducer } from '../context';
+import React, { useCallback, useRef } from "react";
+import { Path } from "paper/dist/paper-core";
+import { Tool } from "react-paper-renderer";
+import { usePaper } from "../context";
 
-const NAME = 'Select';
+const NAME = "Select";
 
 export const Select: React.FC = () => {
-  const [state, dispatch] = useReducer();
+  const [state, dispatch] = usePaper();
   const item = useRef<paper.Item>();
   const point = useRef<paper.Point>();
   const changed = useRef<boolean>(false);
@@ -30,7 +30,7 @@ export const Select: React.FC = () => {
         } else {
           item.current = undefined;
           point.current = undefined;
-          dispatch({ type: 'setSelection', selection: undefined });
+          dispatch({ type: "setSelection", selection: undefined });
         }
       }
     },
@@ -47,9 +47,9 @@ export const Select: React.FC = () => {
 
   const handleMouseUp = useCallback(() => {
     if (item.current instanceof Path && changed.current) {
-      dispatch({ type: 'setSelection', selection: item.current.props.id });
+      dispatch({ type: "setSelection", selection: item.current.props.id });
       dispatch({
-        type: 'updateItem',
+        type: "updateItem",
         index: item.current.index,
         item: {
           pathData: item.current.pathData,

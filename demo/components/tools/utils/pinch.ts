@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef } from "react";
 
 type Data = {
   center: number[];
@@ -53,7 +53,7 @@ export const usePinch = () => {
   const pinch = useRef<Data | null>(null);
 
   const mouseDrag = useCallback(({ event, tool }: paper.ToolEvent) => {
-    const touchEvent = (event as unknown) as TouchEvent;
+    const touchEvent = event as unknown as TouchEvent;
     const next = getData(touchEvent, tool.view);
     if (pinch.current) {
       const state = getState(tool.view, pinch.current, next);

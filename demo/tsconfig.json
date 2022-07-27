@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    //"baseUrl": ".",
+    "baseUrl": ".",
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -14,17 +14,17 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true
-    //"paths": {
-    //  "react-paper-renderer": ["../src"]
-    //}
+    "incremental": true,
+    "paths": {
+      "react-paper-renderer": ["../src"]
+    }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
-    //"../src/**/*.ts",
-    //"../src/**/*.tsx"
+    "**/*.tsx",
+    "../src/**/*.ts",
+    "../src/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }

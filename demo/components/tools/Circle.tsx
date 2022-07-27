@@ -1,13 +1,13 @@
-import React, { useCallback, useRef } from 'react';
-import { Tool } from 'react-paper-renderer';
-import { ItemName } from '../items';
-import { useReducer } from '../context';
-import { createItem, defaultProps } from './utils';
+import React, { useCallback, useRef } from "react";
+import { Tool } from "react-paper-renderer";
+import { ItemName } from "../items";
+import { usePaper } from "../context";
+import { createItem, defaultProps } from "./utils";
 
-const NAME = 'Circle';
+const NAME = "Circle";
 
 export const Circle: React.FC = () => {
-  const [state, dispatch] = useReducer();
+  const [state, dispatch] = usePaper();
   const circle = useRef<paper.Path.Circle | null>(null);
 
   const handleMouseDown = useCallback(
@@ -42,7 +42,7 @@ export const Circle: React.FC = () => {
   const handleMouseUp = useCallback(() => {
     if (state.image && circle.current) {
       dispatch({
-        type: 'addItem',
+        type: "addItem",
         item: createItem(ItemName.Circle, {
           pathData: circle.current.pathData,
         }),

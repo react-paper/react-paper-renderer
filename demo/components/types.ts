@@ -1,6 +1,4 @@
-import { Item } from './items/types';
-
-export type Selection = string | undefined;
+import { Item } from "./items";
 
 export type Image = {
   id: string;

@@ -1,13 +1,13 @@
-import React, { useCallback } from 'react';
-import { Tool } from 'react-paper-renderer';
-import { useClimbuddy } from '../context';
-import { usePan, usePinch, useMouseWheel } from './utils';
-import { ToolName } from './types';
+import React, { useCallback } from "react";
+import { Tool } from "react-paper-renderer";
+import { usePaper } from "../context";
+import { usePan, usePinch, useMouseWheel } from "./utils";
+import { ToolName } from "./types";
 
 const NAME = ToolName.Move;
 
 export const Move: React.FC = () => {
-  const [state] = useClimbuddy();
+  const [state] = usePaper();
   const pinch = usePinch();
   const pan = usePan();
 
