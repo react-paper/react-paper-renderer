@@ -1,8 +1,6 @@
 .container {
-  border: 2px solid blue;
+  /*border: 2px solid blue;*/
   display: block;
-  overflow: hidden;
-  width: calc(100vw - 100px);
-  height: calc(100vh - 300px);
-  margin: 50px 0 0 50px;
+  width: calc(100vw - 0px);
+  height: calc(100vh - 0px);
 }
