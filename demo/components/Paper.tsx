@@ -92,6 +92,9 @@ export const Paper: FC<Props> = ({ image }) => {
               </View>
               <Tool.Move />
               <Tool.Pen />
+              <Tool.Circle />
+              <Tool.Select />
+              <Tool.Delete />
             </Context.Provider>
           </Canvas>
         )}
