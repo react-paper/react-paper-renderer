@@ -7,7 +7,7 @@ import { Items } from "./items";
 import { Image, Route } from "./types";
 
 import { fitImage } from "./utils/fitImage";
-import { initScope } from "./utils/initScope";
+import { exportJSON } from "./utils/exportJSON";
 
 import { Tool, ToolName } from "./tools";
 
@@ -25,10 +25,7 @@ export const Paper: FC<Props> = ({ image }) => {
   const historyImage = state.history[state.historyIndex];
 
   const handleScopeReady = useCallback(
-    (scope: paper.PaperScope) => {
-      dispatch({ type: "setScope", scope: scope });
-      initScope(scope);
-    },
+    (scope: paper.PaperScope) => dispatch({ type: "setScope", scope: scope }),
     [dispatch]
   );
 
@@ -55,7 +52,7 @@ export const Paper: FC<Props> = ({ image }) => {
         <button onClick={() => setTool(ToolName.Delete)}>{ToolName.Delete}</button>
         <button onClick={() => dispatch({ type: "undo" })}>Undo</button>
         <button onClick={() => dispatch({ type: "redo" })}>Redo</button>
-        <button onClick={() => console.log(JSON.stringify(state.scope?.exportJSON()))}>Save</button>
+        <button onClick={() => console.log(JSON.stringify(exportJSON(state.scope!)))}>Save</button>
       </div>
       <div className={styles.paper} ref={ref}>
         {width > 0 && height > 0 && (
@@ -102,17 +99,3 @@ export const Paper: FC<Props> = ({ image }) => {
     </div>
   );
 };
-
-/**
- * Add custom exportJSON function to PaperScope
- *
- * @see utils/initScope.js
- */
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace paper {
-    interface PaperScope {
-      exportJSON: () => Route[];
-    }
-  }
-}
