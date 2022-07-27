@@ -1,17 +1,17 @@
-import React, { ComponentProps, FC, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { FiberRoot } from "react-reconciler";
 import { PaperScope } from "paper/dist/paper-core";
 
 import { Renderer } from "./Renderer";
 
-export type Props = ComponentProps<"canvas"> & {
+export type Props = React.ComponentProps<"canvas"> & {
   width: number;
   height: number;
   settings?: paper.PaperScopeSettings;
   onScopeReady?: (scope: paper.PaperScope) => void;
 };
 
-export const Canvas: FC<Props> = ({
+export const Canvas: React.FC<Props> = ({
   children,
   width,
   height,
