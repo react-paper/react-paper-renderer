@@ -1,19 +1,13 @@
-import React, { FC, ComponentProps, useEffect, useRef } from 'react';
-import { FiberRoot } from 'react-reconciler';
-import { LegacyRoot } from 'react-reconciler/constants';
-import { PaperScope, _scopes } from 'paper/dist/paper-core';
-import { Renderer } from './Renderer';
+import React, { ComponentProps, FC, useEffect, useRef } from "react";
+import { FiberRoot } from "react-reconciler";
+import { PaperScope } from "paper/dist/paper-core";
 
-const canvasStyles = {
-  width: '100%',
-  height: '100%',
-};
+import { Renderer } from "./Renderer";
 
-type Props = ComponentProps<'canvas'> & {
+export type Props = ComponentProps<"canvas"> & {
   width: number;
   height: number;
   settings?: paper.PaperScopeSettings;
-  scopeRef?: React.MutableRefObject<paper.PaperScope | null>;
   onScopeReady?: (scope: paper.PaperScope) => void;
 };
 
@@ -22,7 +16,6 @@ export const Canvas: FC<Props> = ({
   width,
   height,
   settings,
-  scopeRef,
   onScopeReady,
   ...other
 }) => {
@@ -33,33 +26,25 @@ export const Canvas: FC<Props> = ({
   useEffect(() => {
     // create
     if (canvas.current instanceof HTMLCanvasElement) {
+      //console.log("create");
       scope.current = new PaperScope();
-      if (scopeRef) scopeRef.current = scope.current;
       // settings
       Object.assign(scope.current.settings, settings);
       // setup project and view
       scope.current.setup(canvas.current);
       // create renderer
-      root.current = Renderer.createContainer(
-        scope.current,
-        LegacyRoot,
-        null,
-        false,
-        false,
-        '',
-        (error) => console.error(error),
-        null
-      );
+      root.current = Renderer.createContainer(scope.current, 0, false, null);
       // scope ready
-      if (typeof onScopeReady === 'function') {
+      if (typeof onScopeReady === "function") {
         onScopeReady(scope.current);
       }
     }
 
     // destroy
     return () => {
+      //console.log("destroy", root.current);
       if (root.current) {
-        Renderer.updateContainer(null, root.current, null);
+        Renderer.updateContainer(null, root.current, null, () => null);
       }
       canvas.current = null;
       scope.current = null;
@@ -71,8 +56,10 @@ export const Canvas: FC<Props> = ({
 
   // update
   useEffect(() => {
+    //console.log("update", scope.current, root.current);
     if (scope.current && root.current) {
-      Renderer.updateContainer(children, root.current, null);
+      //console.log("update b", scope.current, root.current);
+      Renderer.updateContainer(children, root.current, null, () => null);
     }
   }, [children]);
 
@@ -83,17 +70,14 @@ export const Canvas: FC<Props> = ({
     }
   }, [width, height]);
 
-  return (
-    <canvas
-      {...other}
-      ref={canvas}
-      style={canvasStyles}
-      resize="true"
-      role="img"
-    />
-  );
+  return <canvas {...other} ref={canvas} />;
 };
 
+/**
+ * Add custom paper.js attributes to <canvas> element
+ *
+ * @see http://paperjs.org/tutorials/getting-started/working-with-paper-js/#canvas-configuration
+ */
 declare global {
   type HTMLAttributes<T> = React.HTMLAttributes<T>;
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -101,7 +85,9 @@ declare global {
     interface CanvasHTMLAttributes<T> extends HTMLAttributes<T> {
       height?: number | string;
       width?: number | string;
-      resize?: string; // allow resize="true" on canvas
+      resize?: "true";
+      hidpi?: "off";
+      keepalive?: "true";
     }
   }
 }

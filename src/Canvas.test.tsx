@@ -2,45 +2,64 @@
  * @jest-environment jsdom
  */
 
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { Canvas } from './Canvas';
-import { View, Layer, Rectangle } from './Items';
-import { PaperScope } from 'paper/dist/paper-core';
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import { Canvas } from "./Canvas";
+import { View, Layer, Rectangle } from "./Items";
+import { PaperScope, Path } from "paper/dist/paper-core";
 
-test('render canvas', () => {
-  const scope = { current: null };
-  render(<Canvas width={400} height={300} scopeRef={scope} />);
-  const el = screen.getByRole('img');
+test("render canvas", () => {
+  let scope: any = null;
+  render(
+    <Canvas
+      role="img"
+      width={400}
+      height={300}
+      onScopeReady={(s) => (scope = s)}
+    />
+  );
+  const el = screen.getByRole("img");
   expect(el).toBeInstanceOf(HTMLCanvasElement);
-  expect(scope.current).toBeInstanceOf(PaperScope);
+  expect(scope).toBeInstanceOf(PaperScope);
 });
 
-test('render canvas with children', () => {
-  const scope = { current: null };
+test("render canvas with children", () => {
+  let scope: any = null;
   render(
-    <Canvas width={400} height={300} scopeRef={scope}>
+    <Canvas
+      role="img"
+      width={400}
+      height={300}
+      onScopeReady={(s) => (scope = s)}
+    >
       <View>
         <Layer>
           <Rectangle
             center={[200, 150]}
-            fillColor={'#222222'}
+            fillColor={"#222222"}
             size={[200, 100]}
           />
         </Layer>
         <Layer>
           <Rectangle
             center={[250, 50]}
-            fillColor={'#ff0000'}
+            fillColor={"#ff0000"}
             size={[100, 200]}
           />
         </Layer>
       </View>
     </Canvas>
   );
-  const el = screen.getByRole('img');
+  const el = screen.getByRole("img");
   expect(el).toBeInstanceOf(HTMLCanvasElement);
-  expect(scope.current).toBeInstanceOf(PaperScope);
-  const project = (scope.current as any).project;
-  expect(project.layers.length).toEqual(2);
+  expect(scope).toBeInstanceOf(PaperScope);
+  expect(scope?.projects.length).toEqual(1);
+  expect(scope?.project.layers.length).toEqual(2);
+  expect(scope?.project.layers[0].children.length).toEqual(1);
+  expect(scope?.project.layers[0].children[0]).toBeInstanceOf(Path);
+  expect(scope?.project.layers[0].children[0].props).toEqual({
+    center: [200, 150],
+    fillColor: "#222222",
+    size: [200, 100],
+  });
 });

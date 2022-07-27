@@ -1,8 +1,12 @@
-import Reconciler from 'react-reconciler';
-import { DefaultEventPriority } from 'react-reconciler/constants';
-import Paper from 'paper/dist/paper-core';
+import Reconciler from "react-reconciler";
+import {
+  unstable_now as now,
+  //unstable_scheduleCallback as scheduleDeferredCallback,
+  //unstable_cancelCallback as cancelDeferredCallback,
+} from "scheduler";
+import Paper from "paper/dist/paper-core";
 
-import * as Item from './Items';
+import * as Item from "./Items";
 
 // https://github.com/facebook/react/tree/master/packages/react-reconciler
 // https://github.com/facebook/react/blob/master/packages/react-art/src/ReactARTHostConfig.js
@@ -26,7 +30,7 @@ type Index<T> = { [key: string]: T };
 type Props = Index<any>;
 //#endregion
 
-//#region Paperjs Stuff
+//#region Apply props
 const emptyObject = {};
 
 const applyProp: Index<any> = {
@@ -107,7 +111,7 @@ const applyProps = (
   prevProps: Props = {}
 ) => {
   Object.keys(props).forEach((prop: string) => {
-    if (prop !== 'id' && prop !== 'children') {
+    if (prop !== "id" && prop !== "children") {
       if (applyProp[prop]) {
         applyProp[prop](instance, props, prevProps);
       } else {
@@ -122,8 +126,8 @@ const getSymbolDefinition = (
   { id, name, svg }: Props
 ) => {
   const key = id || name;
-  if (!key) throw new Error('Missing id or name prop on SymbolItem');
-  if (!svg) throw new Error('Missing svg prop on SymbolItem');
+  if (!key) throw new Error("Missing id or name prop on SymbolItem");
+  if (!svg) throw new Error("Missing svg prop on SymbolItem");
 
   // return cached definition
   if (scope.symbols && scope.symbols[key]) {
@@ -149,6 +153,8 @@ export const Renderer = Reconciler({
   createInstance: (type: Type, instanceProps: Props, scope: Container) => {
     const { children, ...props } = instanceProps;
     let instance: Instance;
+
+    //console.log("createInstance", type, instanceProps);
 
     switch (type) {
       case Item.View:
@@ -204,7 +210,7 @@ export const Renderer = Reconciler({
       case Item.Raster: {
         const { onLoad, ...other } = props;
         instance = new scope.Raster(other);
-        if (typeof onLoad === 'function') {
+        if (typeof onLoad === "function") {
           instance.onLoad = () => onLoad(instance);
         }
         break;
@@ -222,12 +228,14 @@ export const Renderer = Reconciler({
 
   //#region Renderer core
   createTextInstance: (text: string) => {
+    //console.log("createTextInstance", text);
     return text;
   },
 
   appendInitialChild: (parentInstance: Instance, child: Instance) => {
-    if (typeof child === 'string') {
-      throw new Error('Text children should already be flattened.');
+    //console.log("appendInitialChild", parentInstance, child);
+    if (typeof child === "string") {
+      throw new Error("Text children should already be flattened.");
     }
     if (parentInstance instanceof Paper.Group && child instanceof Paper.Item) {
       child.addTo(parentInstance);
@@ -235,6 +243,7 @@ export const Renderer = Reconciler({
   },
 
   finalizeInitialChildren: (instance: Instance, type: Type, props: Props) => {
+    //console.log("finalizeInitialChildren");
     switch (type) {
       case Item.View:
       case Item.Layer:
@@ -249,54 +258,66 @@ export const Renderer = Reconciler({
   },
 
   getPublicInstance: (instance: Instance) => {
+    //console.log("getPublicInstance");
     return instance;
   },
 
   prepareForCommit: () => {
+    //console.log("prepareForCommit");
     return null;
   },
 
   prepareUpdate: () => {
+    //console.log("prepareUpdate");
     return true;
   },
 
   resetAfterCommit: () => {
+    //console.log("resetAfterCommit");
     // Noop
   },
 
   resetTextContent: () => {
+    //console.log("resetTextContent");
     // Noop
   },
 
-  getRootHostContext: () => {
+  getRootHostContext: (ctx) => {
+    //console.log("getRootHostContext", ctx);
     return emptyObject;
   },
 
-  getChildHostContext: () => {
+  getChildHostContext: (ctx) => {
+    //console.log("getChildHostContext", ctx);
     return emptyObject;
   },
 
-  shouldSetTextContent: (type: Type, props: Props) => {
-    return (
-      typeof props.children === 'string' || typeof props.children === 'number'
-    );
+  shouldSetTextContent: (type: Type, { children }: Props) => {
+    //console.log("shouldSetTextContent", type, children);
+    return typeof children === "string" || typeof children === "number";
   },
   //#endregion
 
   //#region Renderer config
-  scheduleTimeout: window.setTimeout,
-  cancelTimeout: window.clearTimeout,
+  now,
+  scheduleTimeout: setTimeout,
+  cancelTimeout: clearTimeout,
   noTimeout: -1,
 
   isPrimaryRenderer: false,
-  warnsIfNotActing: false,
+  //warnsIfNotActing: false,
   supportsMutation: true,
   supportsHydration: false,
   supportsPersistence: false,
+
+  queueMicrotask: () => {
+    // Noop
+  },
   //#endregion
 
   //#region Renderer mutation
   appendChild: (parentInstance: Instance, child: Instance) => {
+    //console.log("appendChild");
     /*
     if (child.parent === parentInstance) {
       child.remove();
@@ -308,6 +329,7 @@ export const Renderer = Reconciler({
   },
 
   appendChildToContainer: (container: Container, child: Instance) => {
+    //console.log("appendChildToContainer");
     /*
     if (!(
       child instanceof Paper.View || 
@@ -323,8 +345,9 @@ export const Renderer = Reconciler({
   },
 
   insertBefore: (parent: Instance, child: Instance, beforeChild: Instance) => {
+    //console.log("insertBefore");
     if (child === beforeChild) {
-      throw new Error('PaperRenderer: Can not insert node before itself');
+      throw new Error("PaperRenderer: Can not insert node before itself");
     }
     if (
       parent instanceof Paper.Group &&
@@ -340,8 +363,9 @@ export const Renderer = Reconciler({
     child: Instance,
     beforeChild: Instance
   ) => {
+    //console.log("insertInContainerBefore");
     if (child === beforeChild) {
-      throw new Error('PaperRenderer: Can not insert node before itself');
+      throw new Error("PaperRenderer: Can not insert node before itself");
     }
     // TODO: check this
     if (
@@ -354,22 +378,26 @@ export const Renderer = Reconciler({
   },
 
   removeChild: (parent: Instance, child: Instance) => {
-    if (typeof child.remove === 'function') {
+    //console.log("removeChild");
+    if (typeof child.remove === "function") {
       child.remove();
     }
   },
 
   removeChildFromContainer: (container: Container, child: Instance) => {
-    if (typeof child.remove === 'function') {
+    //console.log("removeChildFromContainer");
+    if (typeof child.remove === "function") {
       child.remove();
     }
   },
 
   commitTextUpdate: () => {
+    //console.log("commitTextUpdate");
     // Noop
   },
 
   commitMount: () => {
+    //console.log("commitMount");
     // Noop
   },
 
@@ -380,45 +408,116 @@ export const Renderer = Reconciler({
     oldProps: Props,
     newProps: Props
   ) => {
+    //console.log("commitUpdate");
     applyProps(instance, newProps, oldProps);
   },
   //#endregion
 
   //#region Renderer necessary stuff
   clearContainer: () => {
+    //console.log("clearContainer");
     // Noop
   },
 
   preparePortalMount: () => {
+    //console.log("preparePortalMount");
     // Noop
   },
 
+  /*
   getCurrentEventPriority: () => {
+    //console.log("getCurrentEventPriority");
     return DefaultEventPriority;
   },
-
+  
   getInstanceFromNode: () => {
+    //console.log("getInstanceFromNode");
     return undefined;
   },
-
+  
   beforeActiveInstanceBlur: () => {
+    //console.log("beforeActiveInstanceBlur");
     // Noop
   },
 
   afterActiveInstanceBlur: () => {
+    //console.log("afterActiveInstanceBlur");
     // Noop
   },
-
+  
   prepareScopeUpdate: () => {
+    //console.log("prepareScopeUpdate");
     // Noop
   },
-
+  
   getInstanceFromScope: () => {
+    //console.log("getInstanceFromScope");
     return undefined;
   },
-
+  
   detachDeletedInstance: () => {
+    //console.log("detachDeletedInstance");
     // Noop
   },
+  */
   //#endregion
 });
+
+//#region PaperJS types
+/**
+ * Add custom paper.js types related to renderer
+ *
+ * @see http://paperjs.org/reference/paperscope/
+ */
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace paper {
+    interface PaperScope {
+      layerMounted?: boolean; // custom
+      symbols?: { [key: string]: any }; // custom
+    }
+    type PaperScopeSettings = {
+      insertItems?: boolean;
+      applyMatrix?: boolean;
+      handleSize?: number;
+      hitTolerance?: number;
+    };
+    interface View {
+      props: { [key: string]: any };
+      type: string;
+      scale(scale: number, center?: Point): void;
+      scale(hor: number, ver: number, center?: Point): void;
+      scale(scale: number, center?: number[]): void;
+      translate(delta: Point): void;
+      translate(dx: number, dy: number): void;
+      projectToView(point: Point): Point;
+      projectToView(point: number[]): Point;
+      viewToProject(point: Point): Point;
+      viewToProject(point: number[]): Point;
+    }
+    interface Raster {
+      fitBounds(rectangle: Rectangle, fill?: boolean): void;
+      fitBounds(x: number, y: number, width: number, height: number): void;
+    }
+    interface Tool {
+      props: { [key: string]: any };
+      type: string;
+      view: View;
+    }
+    interface ToolEvent {
+      tool: Tool;
+      event: PointerEvent;
+    }
+    interface Item {
+      props: { [key: string]: any };
+      type: string;
+      pathData?: string;
+      onLoad: any | null;
+      translate(delta: Point): void;
+      translate(delta: [number, number]): void;
+      fitBounds(rectangle: Rectangle, fill?: boolean): void;
+      fitBounds(x: number, y: number, width: number, height: number): void;
+    }
+  }
+}
+//#endregion
