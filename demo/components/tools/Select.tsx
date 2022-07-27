@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useRef } from "react";
-import { Path } from "paper/dist/paper-core";
+import { Path, PathItem } from "paper/dist/paper-core";
+import * as paper from "paper";
 import { Tool } from "react-paper-renderer";
 import { usePaper } from "../context";
 
@@ -20,7 +21,6 @@ export const Select: FC = () => {
           stroke: true,
           tolerance: 10,
         });
-
         if (hit && hit.item) {
           hit.item.layer.selected = false;
           hit.item.selected = true;
@@ -46,7 +46,7 @@ export const Select: FC = () => {
   }, []);
 
   const handleMouseUp = useCallback(() => {
-    if (item.current instanceof Path && changed.current) {
+    if (item.current && changed.current) {
       dispatch({ type: "setSelection", selection: item.current.props.id });
       dispatch({
         type: "updateItem",
