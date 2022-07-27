@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { FC, useCallback, useRef } from "react";
 import { Tool } from "react-paper-renderer";
 import { ItemName } from "../items";
 import { usePaper } from "../context";
@@ -6,7 +6,7 @@ import { createItem, defaultProps } from "./utils";
 
 const NAME = "Circle";
 
-export const Circle: React.FC = () => {
+export const Circle: FC = () => {
   const [state, dispatch] = usePaper();
   const circle = useRef<paper.Path.Circle | null>(null);
 

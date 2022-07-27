@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Path as PaperPath } from 'react-paper-renderer';
+import React, { FC, useCallback } from "react";
+import { Path as PaperPath } from "react-paper-renderer";
 
 type Props = {
   id?: string;
@@ -11,24 +11,18 @@ type Props = {
   strokeWidth?: number;
 };
 
-export const Path: React.FC<Props> = (props) => {
+export const Path: FC<Props> = (props) => {
   const handleMouseEnter = useCallback(() => {
     if (document.body) {
-      document.body.style.cursor = 'pointer';
+      document.body.style.cursor = "pointer";
     }
   }, []);
 
   const handleMouseLeave = useCallback(() => {
     if (document.body) {
-      document.body.style.cursor = 'auto';
+      document.body.style.cursor = "auto";
     }
   }, []);
 
-  return (
-    <PaperPath
-      {...props}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    />
-  );
+  return <PaperPath {...props} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />;
 };

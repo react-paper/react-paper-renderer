@@ -1,5 +1,5 @@
-import React from 'react';
-import { Circle as PaperCircle } from 'react-paper-renderer';
+import React, { FC } from "react";
+import { Circle as PaperCircle } from "react-paper-renderer";
 
 type Props = {
   id?: string;
@@ -20,7 +20,7 @@ const pathProps = {
 }
 */
 
-export const Circle: React.FC<Props> = (props) => {
+export const Circle: FC<Props> = (props) => {
   //const ctx = useContext(Context)
   //const hit = useRef<any>(null)
 

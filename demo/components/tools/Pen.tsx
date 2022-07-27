@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { FC, useCallback, useRef } from "react";
 import { Tool } from "react-paper-renderer";
 import { ItemName } from "../items";
 import { usePaper } from "../context";
@@ -6,7 +6,7 @@ import { createItem, defaultProps } from "./utils/item";
 
 const NAME = "Pen";
 
-export const Pen: React.FC = () => {
+export const Pen: FC = () => {
   const [state, dispatch] = usePaper();
   const path = useRef<paper.Path>();
 

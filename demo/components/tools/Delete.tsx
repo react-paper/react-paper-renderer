@@ -1,10 +1,10 @@
-import React, { useCallback } from "react";
+import React, { FC, useCallback } from "react";
 import { Tool } from "react-paper-renderer";
 import { usePaper } from "../context";
 
 const NAME = "Delete";
 
-export const Delete: React.FC = () => {
+export const Delete: FC = () => {
   const [state, dispatch] = usePaper();
 
   const handleMouseDown = useCallback(
@@ -24,11 +24,5 @@ export const Delete: React.FC = () => {
     [dispatch, state.scope]
   );
 
-  return (
-    <Tool
-      name={NAME}
-      active={state.tool === NAME}
-      onMouseDown={handleMouseDown}
-    />
-  );
+  return <Tool name={NAME} active={state.tool === NAME} onMouseDown={handleMouseDown} />;
 };
