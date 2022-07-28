@@ -3,13 +3,12 @@ import { Canvas, View, Layer, Raster } from "react-paper-renderer";
 import useMeasure from "react-use-measure";
 
 import { Context } from "./context";
+import { Image } from "./types";
 import { Items } from "./items";
-import { Image, Route } from "./types";
+import { Tool, ToolName } from "./tools";
 
 import { fitImage } from "./utils/fitImage";
 import { exportJSON } from "./utils/exportJSON";
-
-import { Tool, ToolName } from "./tools";
 
 import styles from "./Paper.module.css";
 
@@ -62,6 +61,10 @@ export const Paper: FC<Props> = ({ image }) => {
             height={height}
             onScopeReady={handleScopeReady}
           >
+            {/**
+             * Create a context bridge between renderers
+             * @see https://github.com/konvajs/react-konva/issues/188#issuecomment-478302062
+             */}
             <Context.Provider value={value}>
               <View>
                 <Layer id={image.id} visible={!!state.image}>
