@@ -34,7 +34,7 @@ export const Select: FC = () => {
         }
       }
     },
-    [state.scope]
+    [state.scope, dispatch]
   );
 
   const handleMouseDrag = useCallback((event: paper.ToolEvent) => {

@@ -8,5 +8,7 @@ type Props = {
 
 export const PaperProvider: FC<Props> = ({ children }) => {
   const value = useReducer<Reducer>(reducer, initialState);
-  return <PaperContext.Provider value={value} children={children} />;
+  return (
+    <PaperContext.Provider value={value}>{children}</PaperContext.Provider>
+  );
 };
