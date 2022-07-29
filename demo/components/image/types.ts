@@ -1,4 +1,4 @@
-import { Item } from "./items";
+import { Route } from "../route";
 
 export type Image = {
   id: string;
@@ -6,10 +6,4 @@ export type Image = {
   width: number;
   height: number;
   routes: Route[];
-};
-
-export type Route = {
-  id: string;
-  name: string;
-  items: Item[];
 };

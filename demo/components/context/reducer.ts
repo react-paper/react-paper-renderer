@@ -1,7 +1,7 @@
 import update, { Spec } from "immutability-helper";
 import { Item, ItemData } from "../items";
 import { ToolName } from "../tools";
-import { Image } from "../types";
+import { Image } from "../image";
 
 export type Selection = string | undefined;
 
