@@ -1,17 +1,19 @@
 import React, { ComponentProps, FC } from "react";
 import { usePaper } from "../context";
+import { RedoIcon } from "./icons/RedoIcon";
+import { Button } from "./button";
 
 type Props = ComponentProps<"button">;
 
-export const RedoButton: FC<Props> = (props) => {
+export const RedoButton: FC<Props> = ({ className, ...props }) => {
   const [{ history, historyIndex }, dispatch] = usePaper();
   return (
-    <button
+    <Button
       {...props}
       disabled={historyIndex >= history.length - 1}
       onClick={() => dispatch({ type: "redo" })}
     >
-      Redo
-    </button>
+      <RedoIcon />
+    </Button>
   );
 };

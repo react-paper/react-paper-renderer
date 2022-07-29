@@ -15,10 +15,10 @@ export const Toolbar: FC<Props> = (props) => {
       <ToolButton tool={ToolName.Circle} />
       <ToolButton tool={ToolName.Select} />
       <ToolButton tool={ToolName.Delete} />
-      |
+      <span>|</span>
       <UndoButton />
       <RedoButton />
-      |
+      <span>|</span>
       <SaveButton />
     </div>
   );

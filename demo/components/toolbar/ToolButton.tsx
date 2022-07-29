@@ -2,16 +2,35 @@ import React, { ComponentProps, FC } from "react";
 import { usePaper } from "../context";
 import { ToolName } from "../tools";
 
+import { Button } from "./button";
+import { MoveIcon } from "./icons/MoveIcon";
+import { PenIcon } from "./icons/PenIcon";
+import { CircleIcon } from "./icons/CircleIcon";
+import { SelectIcon } from "./icons/SelectIcon";
+import { DeleteIcon } from "./icons/DeleteIcon";
+
+const icons = {
+  [ToolName.Move]: MoveIcon,
+  [ToolName.Pen]: PenIcon,
+  [ToolName.Circle]: CircleIcon,
+  [ToolName.Select]: SelectIcon,
+  [ToolName.Delete]: DeleteIcon,
+};
+
 type Props = ComponentProps<"button"> & {
   tool: ToolName;
 };
 
-export const ToolButton: FC<Props> = ({ tool, ...props }) => {
+export const ToolButton: FC<Props> = ({ className, tool, ...props }) => {
   const [state, dispatch] = usePaper();
+  const Icon = icons[tool];
   return (
-    <button {...props} onClick={() => dispatch({ type: "setTool", tool })}>
-      {tool}
-      {state.tool === tool ? <span /> : null}
-    </button>
+    <Button
+      {...props}
+      active={state.tool === tool}
+      onClick={() => dispatch({ type: "setTool", tool })}
+    >
+      <Icon />
+    </Button>
   );
 };
