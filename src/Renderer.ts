@@ -383,9 +383,6 @@ export const Renderer = Reconciler({
   //#endregion
 
   //#region necessary stuff
-  preparePortalMount: () => {
-    // Noop
-  },
 
   getCurrentEventPriority: () => {
     return DefaultEventPriority;
@@ -394,11 +391,12 @@ export const Renderer = Reconciler({
   getInstanceFromNode: () => {
     return undefined;
   },
-  beforeActiveInstanceBlur: () => {
-    // Noop
+
+  getInstanceFromScope: () => {
+    return undefined;
   },
 
-  afterActiveInstanceBlur: () => {
+  preparePortalMount: () => {
     // Noop
   },
 
@@ -406,8 +404,12 @@ export const Renderer = Reconciler({
     // Noop
   },
 
-  getInstanceFromScope: () => {
-    return undefined;
+  beforeActiveInstanceBlur: () => {
+    // Noop
+  },
+
+  afterActiveInstanceBlur: () => {
+    // Noop
   },
 
   detachDeletedInstance: () => {
