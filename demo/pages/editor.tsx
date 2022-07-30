@@ -6,7 +6,7 @@ import { Provider, Paper } from "components";
 import styles from "../styles/Editor.module.css";
 
 const data = {
-  id: "image1",
+  id: "37ag863f-8530-4716-512d-5jr2bd3be5d2",
   width: 1920,
   height: 870,
   url: "/mr-bubbles.jpg",

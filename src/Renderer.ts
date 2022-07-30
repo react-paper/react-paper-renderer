@@ -1,15 +1,8 @@
 import Reconciler from "react-reconciler";
-import {
-  unstable_now as now,
-  //unstable_scheduleCallback as scheduleDeferredCallback,
-  //unstable_cancelCallback as cancelDeferredCallback,
-} from "scheduler";
+import { DefaultEventPriority } from "react-reconciler/constants";
 import Paper from "paper/dist/paper-core";
 
 import * as Item from "./Items";
-
-// https://github.com/facebook/react/tree/master/packages/react-reconciler
-// https://github.com/facebook/react/blob/master/packages/react-art/src/ReactARTHostConfig.js
 
 //#region Types
 type Container = paper.PaperScope;
@@ -30,7 +23,7 @@ type Index<T> = { [key: string]: T };
 type Props = Index<any>;
 //#endregion
 
-//#region Apply props
+//#region Props
 const emptyObject = {};
 
 const applyProp: Index<any> = {
@@ -148,13 +141,14 @@ const getSymbolDefinition = (
 };
 //#endregion
 
+// https://github.com/facebook/react/tree/master/packages/react-reconciler
+// https://github.com/facebook/react/blob/master/packages/react-art/src/ReactARTHostConfig.js
+
 export const Renderer = Reconciler({
-  //#region Renderer createInstance
+  //#region createInstance
   createInstance: (type: Type, instanceProps: Props, scope: Container) => {
     const { children, ...props } = instanceProps;
     let instance: Instance;
-
-    //console.log("createInstance", type, instanceProps);
 
     switch (type) {
       case Item.View:
@@ -226,14 +220,12 @@ export const Renderer = Reconciler({
   },
   //#endregion
 
-  //#region Renderer core
+  //#region core
   createTextInstance: (text: string) => {
-    //console.log("createTextInstance", text);
     return text;
   },
 
   appendInitialChild: (parentInstance: Instance, child: Instance) => {
-    //console.log("appendInitialChild", parentInstance, child);
     if (typeof child === "string") {
       throw new Error("Text children should already be flattened.");
     }
@@ -243,7 +235,6 @@ export const Renderer = Reconciler({
   },
 
   finalizeInitialChildren: (instance: Instance, type: Type, props: Props) => {
-    //console.log("finalizeInitialChildren");
     switch (type) {
       case Item.View:
       case Item.Layer:
@@ -258,48 +249,39 @@ export const Renderer = Reconciler({
   },
 
   getPublicInstance: (instance: Instance) => {
-    //console.log("getPublicInstance");
     return instance;
   },
 
   prepareForCommit: () => {
-    //console.log("prepareForCommit");
     return null;
   },
 
   prepareUpdate: () => {
-    //console.log("prepareUpdate");
     return true;
   },
 
   resetAfterCommit: () => {
-    //console.log("resetAfterCommit");
     // Noop
   },
 
   resetTextContent: () => {
-    //console.log("resetTextContent");
     // Noop
   },
 
   getRootHostContext: (ctx) => {
-    //console.log("getRootHostContext", ctx);
     return emptyObject;
   },
 
   getChildHostContext: (ctx) => {
-    //console.log("getChildHostContext", ctx);
     return emptyObject;
   },
 
   shouldSetTextContent: (type: Type, { children }: Props) => {
-    //console.log("shouldSetTextContent", type, children);
     return typeof children === "string" || typeof children === "number";
   },
   //#endregion
 
-  //#region Renderer config
-  now,
+  //#region config
   scheduleTimeout: setTimeout,
   cancelTimeout: clearTimeout,
   noTimeout: -1,
@@ -309,15 +291,10 @@ export const Renderer = Reconciler({
   supportsMutation: true,
   supportsHydration: false,
   supportsPersistence: false,
-
-  queueMicrotask: () => {
-    // Noop
-  },
   //#endregion
 
-  //#region Renderer mutation
+  //#region mutation
   appendChild: (parentInstance: Instance, child: Instance) => {
-    //console.log("appendChild");
     /*
     if (child.parent === parentInstance) {
       child.remove();
@@ -329,7 +306,6 @@ export const Renderer = Reconciler({
   },
 
   appendChildToContainer: (container: Container, child: Instance) => {
-    //console.log("appendChildToContainer");
     /*
     if (!(
       child instanceof Paper.View || 
@@ -345,7 +321,6 @@ export const Renderer = Reconciler({
   },
 
   insertBefore: (parent: Instance, child: Instance, beforeChild: Instance) => {
-    //console.log("insertBefore");
     if (child === beforeChild) {
       throw new Error("PaperRenderer: Can not insert node before itself");
     }
@@ -363,7 +338,6 @@ export const Renderer = Reconciler({
     child: Instance,
     beforeChild: Instance
   ) => {
-    //console.log("insertInContainerBefore");
     if (child === beforeChild) {
       throw new Error("PaperRenderer: Can not insert node before itself");
     }
@@ -378,26 +352,22 @@ export const Renderer = Reconciler({
   },
 
   removeChild: (parent: Instance, child: Instance) => {
-    //console.log("removeChild");
     if (typeof child.remove === "function") {
       child.remove();
     }
   },
 
   removeChildFromContainer: (container: Container, child: Instance) => {
-    //console.log("removeChildFromContainer");
     if (typeof child.remove === "function") {
       child.remove();
     }
   },
 
   commitTextUpdate: () => {
-    //console.log("commitTextUpdate");
     // Noop
   },
 
   commitMount: () => {
-    //console.log("commitMount");
     // Noop
   },
 
@@ -408,58 +378,41 @@ export const Renderer = Reconciler({
     oldProps: Props,
     newProps: Props
   ) => {
-    //console.log("commitUpdate");
     applyProps(instance, newProps, oldProps);
   },
   //#endregion
 
-  //#region Renderer necessary stuff
-  clearContainer: () => {
-    //console.log("clearContainer");
-    // Noop
-  },
-
+  //#region necessary stuff
   preparePortalMount: () => {
-    //console.log("preparePortalMount");
     // Noop
   },
 
-  /*
   getCurrentEventPriority: () => {
-    //console.log("getCurrentEventPriority");
     return DefaultEventPriority;
   },
-  
+
   getInstanceFromNode: () => {
-    //console.log("getInstanceFromNode");
     return undefined;
   },
-  
   beforeActiveInstanceBlur: () => {
-    //console.log("beforeActiveInstanceBlur");
     // Noop
   },
 
   afterActiveInstanceBlur: () => {
-    //console.log("afterActiveInstanceBlur");
     // Noop
   },
-  
+
   prepareScopeUpdate: () => {
-    //console.log("prepareScopeUpdate");
     // Noop
   },
-  
+
   getInstanceFromScope: () => {
-    //console.log("getInstanceFromScope");
     return undefined;
   },
-  
+
   detachDeletedInstance: () => {
-    //console.log("detachDeletedInstance");
     // Noop
   },
-  */
   //#endregion
 });
 
