@@ -413,6 +413,10 @@ export const Renderer = Reconciler({
   detachDeletedInstance: () => {
     // Noop
   },
+
+  clearContainer: () => {
+    // Noop
+  },
   //#endregion
 });
 
