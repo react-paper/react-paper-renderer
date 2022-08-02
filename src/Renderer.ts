@@ -1,10 +1,9 @@
 import Reconciler from "react-reconciler";
 import { DefaultEventPriority } from "react-reconciler/constants";
-import Paper from "paper/dist/paper-core";
+import paper from "paper/dist/paper-core";
 
 import * as Item from "./Items";
 
-//#region Types
 type Container = paper.PaperScope;
 
 type Instance =
@@ -21,24 +20,25 @@ type Type = keyof typeof Item;
 
 type Index<T> = { [key: string]: T };
 type Props = Index<any>;
-//#endregion
 
-//#region Props
-const emptyObject = {};
+type ApplyDefaultProp = (
+  prop: string,
+  instance: Instance,
+  props: Props,
+  prev: Props
+) => void;
 
-const applyProp: Index<any> = {
-  default: (
-    prop: string,
-    instance: Instance,
-    props: Props,
-    prevProps: Props
-  ) => {
-    if (props[prop] !== prevProps[prop]) {
-      Object.assign(instance, { [prop]: props[prop] });
-    }
-  },
-  data: (instance: Instance, props: Props, prevProps: Props) => {
-    if (props.data !== prevProps.data && instance instanceof Paper.Item) {
+type ApplyProp = (instance: Instance, props: Props, prev: Props) => void;
+
+const applyDefaultProp: ApplyDefaultProp = (prop, instance, props, prev) => {
+  if (props[prop] !== prev[prop]) {
+    Object.assign(instance, { [prop]: props[prop] });
+  }
+};
+
+const applyProp: Index<ApplyProp> = {
+  data: (instance, props, prev) => {
+    if (props.data !== prev.data && instance instanceof paper.Item) {
       instance.data = {
         ...instance.data,
         ...props.data,
@@ -46,53 +46,50 @@ const applyProp: Index<any> = {
       };
     }
   },
-  active: (instance: Instance, props: Props, prevProps: Props) => {
+  active: (instance, props, prev) => {
     if (
       props.active &&
-      props.active !== prevProps.active &&
-      instance instanceof Paper.Tool
+      props.active !== prev.active &&
+      instance instanceof paper.Tool
     ) {
       instance.activate();
     }
   },
-  point: (instance: Instance, props: Props, prevProps: Props) => {
-    if (props.point !== prevProps.point && instance instanceof Paper.Item) {
+  point: (instance, props, prev) => {
+    if (props.point !== prev.point && instance instanceof paper.Item) {
       instance.translate([
-        props.point[0] - prevProps.point[0],
-        props.point[1] - prevProps.point[1],
+        props.point[0] - prev.point[0],
+        props.point[1] - prev.point[1],
       ]);
     }
   },
-  center: (instance: Instance, props: Props, prevProps: Props) => {
-    if (props.center !== prevProps.center && instance instanceof Paper.Item) {
+  center: (instance, props, prev) => {
+    if (props.center !== prev.center && instance instanceof paper.Item) {
       instance.translate([
-        props.center[0] - prevProps.center[0],
-        props.center[1] - prevProps.center[1],
+        props.center[0] - prev.center[0],
+        props.center[1] - prev.center[1],
       ]);
     }
   },
-  radius: (instance: Instance, props: Props, prevProps: Props) => {
-    if (props.radius !== prevProps.radius && instance instanceof Paper.Item) {
-      instance.scale(props.radius / prevProps.radius);
+  radius: (instance, props, prev) => {
+    if (props.radius !== prev.radius && instance instanceof paper.Item) {
+      instance.scale(props.radius / prev.radius);
     }
   },
-  rotation: (instance: Instance, props: Props, prevProps: Props) => {
-    if (
-      props.rotation !== prevProps.rotation &&
-      instance instanceof Paper.Item
-    ) {
-      if (props.rotation && prevProps.rotation) {
-        instance.rotate(props.rotation - prevProps.rotation);
+  rotation: (instance, props, prev) => {
+    if (props.rotation !== prev.rotation && instance instanceof paper.Item) {
+      if (props.rotation && prev.rotation) {
+        instance.rotate(props.rotation - prev.rotation);
       } else {
         instance.rotation = props.rotation;
       }
     }
   },
-  size: (instance: Instance, props: Props, prevProps: Props) => {
-    if (props.size !== prevProps.size && instance instanceof Paper.Item) {
+  size: (instance, props, prev) => {
+    if (props.size !== prev.size && instance instanceof paper.Item) {
       instance.scale(
-        props.size[0] / prevProps.size[0],
-        props.size[1] / prevProps.size[1]
+        props.size[0] / prev.size[0],
+        props.size[1] / prev.size[1]
       );
     }
   },
@@ -103,21 +100,24 @@ const applyProps = (
   props: Props,
   prevProps: Props = {}
 ) => {
-  Object.keys(props).forEach((prop: string) => {
+  const keys = Object.keys(props);
+  const len = keys.length;
+  let i = 0;
+  // https://stackoverflow.com/a/7252102
+  while (i < len) {
+    const prop = keys[i];
     if (prop !== "id" && prop !== "children") {
       if (applyProp[prop]) {
         applyProp[prop](instance, props, prevProps);
       } else {
-        applyProp.default(prop, instance, props, prevProps);
+        applyDefaultProp(prop, instance, props, prevProps);
       }
     }
-  });
+    i++;
+  }
 };
 
-const getSymbolDefinition = (
-  scope: paper.PaperScope,
-  { id, name, svg }: Props
-) => {
+const getSymbolDefinition = (scope: Container, { id, name, svg }: Props) => {
   const key = id || name;
   if (!key) throw new Error("Missing id or name prop on SymbolItem");
   if (!svg) throw new Error("Missing svg prop on SymbolItem");
@@ -133,21 +133,21 @@ const getSymbolDefinition = (
   }
 
   // create definition
-  const definition = new scope.SymbolDefinition(scope.project.importSVG(svg));
+  const definition = new paper.SymbolDefinition(scope.project.importSVG(svg));
   scope.symbols[key] = definition;
 
   // return created definition
   return definition;
 };
-//#endregion
 
 // https://github.com/facebook/react/tree/master/packages/react-reconciler
 // https://github.com/facebook/react/blob/master/packages/react-art/src/ReactARTHostConfig.js
 
 export const Renderer = Reconciler({
-  //#region createInstance
   createInstance: (type: Type, instanceProps: Props, scope: Container) => {
-    const { children, ...props } = instanceProps;
+    const { children, ...other } = instanceProps;
+    const props: Props = { ...other, project: scope.project };
+
     let instance: Instance;
 
     switch (type) {
@@ -158,16 +158,7 @@ export const Renderer = Reconciler({
         instance = new scope.Tool();
         break;
       case Item.Layer:
-        if (!scope.layerMounted) {
-          // first layer is created by paperjs
-          // so we simply use it as our instance
-          const { id, ...other } = props;
-          instance = scope.project.layers[0];
-          instance.set(other);
-          scope.layerMounted = true;
-        } else {
-          instance = new scope.Layer(props);
-        }
+        instance = new scope.Layer(props);
         break;
       case Item.Group:
         instance = new scope.Group(props);
@@ -213,28 +204,109 @@ export const Renderer = Reconciler({
         throw new Error(`PaperRenderer does not support the type "${type}"`);
     }
 
-    instance.props = props;
+    instance.props = other;
     instance.type = type;
+
+    /*
+    console.log(
+      "createInstance",
+      scope.name,
+      scope.project.name,
+      instance.project?.name,
+      instance.type,
+      instance.id
+    );
+    */
 
     return instance;
   },
-  //#endregion
 
-  //#region core
-  createTextInstance: (text: string) => {
-    return text;
+  createTextInstance: () => {
+    throw new Error("PaperRenderer does not support text children");
   },
 
-  appendInitialChild: (parentInstance: Instance, child: Instance) => {
-    if (typeof child === "string") {
-      throw new Error("Text children should already be flattened.");
+  getPublicInstance: (instance: Instance) => instance,
+  prepareForCommit: () => null,
+  prepareUpdate: () => true,
+  resetAfterCommit: () => {},
+  resetTextContent: () => {},
+  getRootHostContext: () => null,
+  getChildHostContext: () => null,
+  shouldSetTextContent: () => false,
+
+  getCurrentEventPriority: () => DefaultEventPriority,
+  getInstanceFromNode: () => undefined,
+  getInstanceFromScope: () => undefined,
+  preparePortalMount: () => {},
+  prepareScopeUpdate: () => {},
+  beforeActiveInstanceBlur: () => {},
+  afterActiveInstanceBlur: () => {},
+  detachDeletedInstance: () => {},
+  clearContainer: () => {},
+
+  scheduleTimeout: setTimeout,
+  cancelTimeout: clearTimeout,
+  noTimeout: -1,
+  isPrimaryRenderer: false,
+  warnsIfNotActing: false,
+  supportsMutation: true,
+  supportsHydration: false,
+  supportsPersistence: false,
+
+  appendInitialChild: (parent: Instance, child: Instance) => {
+    console.log("appendInitialChild");
+    if (parent instanceof paper.Group && child instanceof paper.Item) {
+      child.addTo(parent);
     }
-    if (parentInstance instanceof Paper.Group && child instanceof Paper.Item) {
-      child.addTo(parentInstance);
+    if (parent instanceof paper.View && child instanceof paper.Item) {
+      child.addTo(parent._project);
     }
+    /*
+    console.log(
+      "appendInitialChild",
+      parent.project?._scope.name,
+      parent.project?.name,
+      child.project?._scope.name,
+      child.project?.name,
+      child.type,
+      child.id
+    );
+    console.log({
+      child: {
+        item: child instanceof paper.Item,
+        group: child instanceof paper.Group,
+        layer: child instanceof paper.Layer,
+        tool: child instanceof paper.Tool,
+        raster: child instanceof paper.Raster,
+        child,
+      },
+      parent: {
+        item: parent instanceof paper.Item,
+        group: parent instanceof paper.Group,
+        layer: parent instanceof paper.Layer,
+        tool: parent instanceof paper.Tool,
+        view: parent instanceof paper.View,
+        parent,
+      },
+    });
+    */
   },
 
   finalizeInitialChildren: (instance: Instance, type: Type, props: Props) => {
+    console.log("finalizeInitialChildren");
+    if (instance instanceof paper.Tool) {
+      applyProps(instance, props);
+    }
+    return false;
+    /*
+    console.log(
+      "finalizeInitialChildren",
+      instance.project?._scope.name,
+      instance.project?.name,
+      instance.type,
+      instance.id
+    );
+    /*
     switch (type) {
       case Item.View:
       case Item.Layer:
@@ -245,131 +317,109 @@ export const Renderer = Reconciler({
       default:
         break;
     }
-    return false;
-  },
-
-  getPublicInstance: (instance: Instance) => {
-    return instance;
-  },
-
-  prepareForCommit: () => {
-    return null;
-  },
-
-  prepareUpdate: () => {
     return true;
-  },
-
-  resetAfterCommit: () => {
-    // Noop
-  },
-
-  resetTextContent: () => {
-    // Noop
-  },
-
-  getRootHostContext: (ctx) => {
-    return emptyObject;
-  },
-
-  getChildHostContext: (ctx) => {
-    return emptyObject;
-  },
-
-  shouldSetTextContent: (type: Type, { children }: Props) => {
-    return typeof children === "string" || typeof children === "number";
-  },
-  //#endregion
-
-  //#region config
-  scheduleTimeout: setTimeout,
-  cancelTimeout: clearTimeout,
-  noTimeout: -1,
-
-  isPrimaryRenderer: false,
-  //warnsIfNotActing: false,
-  supportsMutation: true,
-  supportsHydration: false,
-  supportsPersistence: false,
-  //#endregion
-
-  //#region mutation
-  appendChild: (parentInstance: Instance, child: Instance) => {
-    /*
-    if (child.parent === parentInstance) {
-      child.remove();
-    }
     */
-    if (parentInstance instanceof Paper.Group && child instanceof Paper.Item) {
-      child.addTo(parentInstance);
+  },
+
+  appendChild: (parent: Instance, child: Instance) => {
+    console.log("appendChild");
+    if (parent instanceof paper.Group && child instanceof paper.Item) {
+      child.addTo(parent);
     }
+    if (parent instanceof paper.View && child instanceof paper.Item) {
+      child.addTo(parent._project);
+    }
+    /*
+    console.log(
+      "appendChild",
+      parent.project?._scope.name,
+      parent.project?.name,
+      child.project?._scope.name,
+      child.project?.name,
+      child.type,
+      child.id
+    );
+    console.log({
+      child: {
+        item: child instanceof paper.Item,
+        group: child instanceof paper.Group,
+        layer: child instanceof paper.Layer,
+        tool: child instanceof paper.Tool,
+        raster: child instanceof paper.Raster,
+        child,
+      },
+      parent: {
+        item: parent instanceof paper.Item,
+        group: parent instanceof paper.Group,
+        layer: parent instanceof paper.Layer,
+        tool: parent instanceof paper.Tool,
+        view: parent instanceof paper.View,
+        parent,
+      },
+    });
+    */
   },
 
   appendChildToContainer: (container: Container, child: Instance) => {
-    /*
-    if (!(
-      child instanceof Paper.View || 
-      child instanceof Paper.Tool
-    ) && child.parent === container) {
-      child.remove();
-    }
-    */
-    // TODO: check this
-    if (container instanceof Paper.Group && child instanceof Paper.Item) {
-      child.addTo(container);
+    console.log("appendChildToContainer");
+    if (!(child instanceof paper.View || child instanceof paper.Tool)) {
+      throw new Error("Container can only hold View and Tool nodes");
     }
   },
 
-  insertBefore: (parent: Instance, child: Instance, beforeChild: Instance) => {
-    if (child === beforeChild) {
-      throw new Error("PaperRenderer: Can not insert node before itself");
-    }
+  insertBefore: (parent: Instance, child: Instance, before: Instance) => {
+    console.log("insertBefore");
     if (
-      parent instanceof Paper.Group &&
-      child instanceof Paper.Path &&
-      beforeChild instanceof Paper.Path
+      parent instanceof paper.Group &&
+      child instanceof paper.Item &&
+      before instanceof paper.Item
     ) {
-      child.insertAbove(beforeChild);
+      child.insertAbove(before);
     }
+    /*
+    console.log(
+      "insertBefore",
+      parent.project?._scope.name,
+      parent.project?.name,
+      child.project?._scope.name,
+      child.project?.name,
+      child.type,
+      child.id
+    );
+    */
   },
 
   insertInContainerBefore: (
     container: Container,
     child: Instance,
-    beforeChild: Instance
+    before: Instance
   ) => {
-    if (child === beforeChild) {
-      throw new Error("PaperRenderer: Can not insert node before itself");
-    }
-    // TODO: check this
+    console.log("insertInContainerBefore");
     if (
-      container instanceof Paper.Group &&
-      child instanceof Paper.Path &&
-      beforeChild instanceof Paper.Path
+      !(child instanceof paper.View || child instanceof paper.Tool) ||
+      !(before instanceof paper.View || before instanceof paper.Tool)
     ) {
-      child.insertAbove(beforeChild);
+      throw new Error("Container can only hold View and Tool nodes");
     }
   },
 
   removeChild: (parent: Instance, child: Instance) => {
+    console.log("removeChild");
     if (typeof child.remove === "function") {
       child.remove();
     }
   },
 
   removeChildFromContainer: (container: Container, child: Instance) => {
+    console.log("removeChildFromContainer");
     if (typeof child.remove === "function") {
       child.remove();
     }
   },
 
-  commitTextUpdate: () => {
-    // Noop
-  },
+  commitTextUpdate: () => {},
 
-  commitMount: () => {
-    // Noop
-  },
+  commitMount: () => {},
 
   commitUpdate: (
     instance: Instance,
@@ -380,103 +430,4 @@ export const Renderer = Reconciler({
   ) => {
     applyProps(instance, newProps, oldProps);
   },
-  //#endregion
-
-  //#region necessary stuff
-
-  getCurrentEventPriority: () => {
-    return DefaultEventPriority;
-  },
-
-  getInstanceFromNode: () => {
-    return undefined;
-  },
-
-  getInstanceFromScope: () => {
-    return undefined;
-  },
-
-  preparePortalMount: () => {
-    // Noop
-  },
-
-  prepareScopeUpdate: () => {
-    // Noop
-  },
-
-  beforeActiveInstanceBlur: () => {
-    // Noop
-  },
-
-  afterActiveInstanceBlur: () => {
-    // Noop
-  },
-
-  detachDeletedInstance: () => {
-    // Noop
-  },
-
-  clearContainer: () => {
-    // Noop
-  },
-  //#endregion
 });
-
-//#region PaperJS types
-/**
- * Add custom paper.js types related to renderer
- *
- * @see http://paperjs.org/reference/paperscope/
- */
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace paper {
-    interface PaperScope {
-      layerMounted?: boolean; // custom
-      symbols?: { [key: string]: any }; // custom
-    }
-    type PaperScopeSettings = {
-      insertItems?: boolean;
-      applyMatrix?: boolean;
-      handleSize?: number;
-      hitTolerance?: number;
-    };
-    interface View {
-      props: { [key: string]: any };
-      type: string;
-      scale(scale: number, center?: Point): void;
-      scale(hor: number, ver: number, center?: Point): void;
-      scale(scale: number, center?: number[]): void;
-      translate(delta: Point): void;
-      translate(dx: number, dy: number): void;
-      projectToView(point: Point): Point;
-      projectToView(point: number[]): Point;
-      viewToProject(point: Point): Point;
-      viewToProject(point: number[]): Point;
-    }
-    interface Raster {
-      fitBounds(rectangle: Rectangle, fill?: boolean): void;
-      fitBounds(x: number, y: number, width: number, height: number): void;
-    }
-    interface Tool {
-      props: { [key: string]: any };
-      type: string;
-      view: View;
-    }
-    interface ToolEvent {
-      tool: Tool;
-      event: PointerEvent;
-    }
-    interface Item {
-      props: { [key: string]: any };
-      type: string;
-      pathData?: string;
-      onLoad: any | null;
-      translate(delta: Point): void;
-      translate(delta: [number, number]): void;
-      fitBounds(rectangle: Rectangle, fill?: boolean): void;
-      fitBounds(x: number, y: number, width: number, height: number): void;
-    }
-  }
-}
-//#endregion
