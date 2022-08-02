@@ -140,9 +140,6 @@ const getSymbolDefinition = (scope: Container, { id, name, svg }: Props) => {
   return definition;
 };
 
-// https://github.com/facebook/react/tree/master/packages/react-reconciler
-// https://github.com/facebook/react/blob/master/packages/react-art/src/ReactARTHostConfig.js
-
 export const Renderer = Reconciler({
   createInstance: (type: Type, instanceProps: Props, scope: Container) => {
     const { children, ...other } = instanceProps;
@@ -207,17 +204,6 @@ export const Renderer = Reconciler({
     instance.props = other;
     instance.type = type;
 
-    /*
-    console.log(
-      "createInstance",
-      scope.name,
-      scope.project.name,
-      instance.project?.name,
-      instance.type,
-      instance.id
-    );
-    */
-
     return instance;
   },
 
@@ -254,121 +240,37 @@ export const Renderer = Reconciler({
   supportsPersistence: false,
 
   appendInitialChild: (parent: Instance, child: Instance) => {
-    console.log("appendInitialChild");
     if (parent instanceof paper.Group && child instanceof paper.Item) {
       child.addTo(parent);
     }
     if (parent instanceof paper.View && child instanceof paper.Item) {
       child.addTo(parent._project);
     }
-    /*
-    console.log(
-      "appendInitialChild",
-      parent.project?._scope.name,
-      parent.project?.name,
-      child.project?._scope.name,
-      child.project?.name,
-      child.type,
-      child.id
-    );
-    console.log({
-      child: {
-        item: child instanceof paper.Item,
-        group: child instanceof paper.Group,
-        layer: child instanceof paper.Layer,
-        tool: child instanceof paper.Tool,
-        raster: child instanceof paper.Raster,
-        child,
-      },
-      parent: {
-        item: parent instanceof paper.Item,
-        group: parent instanceof paper.Group,
-        layer: parent instanceof paper.Layer,
-        tool: parent instanceof paper.Tool,
-        view: parent instanceof paper.View,
-        parent,
-      },
-    });
-    */
   },
 
   finalizeInitialChildren: (instance: Instance, type: Type, props: Props) => {
-    console.log("finalizeInitialChildren");
     if (instance instanceof paper.Tool) {
       applyProps(instance, props);
     }
     return false;
-    /*
-    console.log(
-      "finalizeInitialChildren",
-      instance.project?._scope.name,
-      instance.project?.name,
-      instance.type,
-      instance.id
-    );
-    /*
-    switch (type) {
-      case Item.View:
-      case Item.Layer:
-      case Item.Group:
-      case Item.Tool:
-        applyProps(instance, props);
-        break;
-      default:
-        break;
-    }
-    return true;
-    */
   },
 
   appendChild: (parent: Instance, child: Instance) => {
-    console.log("appendChild");
     if (parent instanceof paper.Group && child instanceof paper.Item) {
       child.addTo(parent);
     }
     if (parent instanceof paper.View && child instanceof paper.Item) {
       child.addTo(parent._project);
     }
-    /*
-    console.log(
-      "appendChild",
-      parent.project?._scope.name,
-      parent.project?.name,
-      child.project?._scope.name,
-      child.project?.name,
-      child.type,
-      child.id
-    );
-    console.log({
-      child: {
-        item: child instanceof paper.Item,
-        group: child instanceof paper.Group,
-        layer: child instanceof paper.Layer,
-        tool: child instanceof paper.Tool,
-        raster: child instanceof paper.Raster,
-        child,
-      },
-      parent: {
-        item: parent instanceof paper.Item,
-        group: parent instanceof paper.Group,
-        layer: parent instanceof paper.Layer,
-        tool: parent instanceof paper.Tool,
-        view: parent instanceof paper.View,
-        parent,
-      },
-    });
-    */
   },
 
   appendChildToContainer: (container: Container, child: Instance) => {
-    console.log("appendChildToContainer");
     if (!(child instanceof paper.View || child instanceof paper.Tool)) {
       throw new Error("Container can only hold View and Tool nodes");
     }
   },
 
   insertBefore: (parent: Instance, child: Instance, before: Instance) => {
-    console.log("insertBefore");
     if (
       parent instanceof paper.Group &&
       child instanceof paper.Item &&
@@ -376,17 +278,6 @@ export const Renderer = Reconciler({
     ) {
       child.insertAbove(before);
     }
-    /*
-    console.log(
-      "insertBefore",
-      parent.project?._scope.name,
-      parent.project?.name,
-      child.project?._scope.name,
-      child.project?.name,
-      child.type,
-      child.id
-    );
-    */
   },
 
   insertInContainerBefore: (
@@ -394,7 +285,6 @@ export const Renderer = Reconciler({
     child: Instance,
     before: Instance
   ) => {
-    console.log("insertInContainerBefore");
     if (
       !(child instanceof paper.View || child instanceof paper.Tool) ||
       !(before instanceof paper.View || before instanceof paper.Tool)
@@ -404,14 +294,12 @@ export const Renderer = Reconciler({
   },
 
   removeChild: (parent: Instance, child: Instance) => {
-    console.log("removeChild");
     if (typeof child.remove === "function") {
       child.remove();
     }
   },
 
   removeChildFromContainer: (container: Container, child: Instance) => {
-    console.log("removeChildFromContainer");
     if (typeof child.remove === "function") {
       child.remove();
     }

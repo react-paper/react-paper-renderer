@@ -35,7 +35,6 @@ export const Canvas: React.FC<Props> = ({
   useEffectOnce(() => {
     // create
     if (canvas.current instanceof HTMLCanvasElement) {
-      //console.log("create");
       scope.current = new PaperScope();
       Object.assign(scope.current.settings, {
         ...settings,
@@ -59,7 +58,6 @@ export const Canvas: React.FC<Props> = ({
 
     // destroy
     return () => {
-      //console.log("destroy");
       if (fiber.current) {
         Renderer.updateContainer(null, fiber.current, null, () => null);
       }
@@ -71,7 +69,6 @@ export const Canvas: React.FC<Props> = ({
 
   // update
   useEffect(() => {
-    //console.log("update", scope.current?._id);
     if (scope.current && fiber.current) {
       Renderer.updateContainer(children, fiber.current, null, () => null);
     }
@@ -79,7 +76,6 @@ export const Canvas: React.FC<Props> = ({
 
   // resize
   useEffect(() => {
-    //console.log("resize");
     if (scope.current) {
       scope.current.view.viewSize = new scope.current.Size(width, height);
     }
