@@ -15,13 +15,19 @@ export const RouteLayer: FC<Props> = ({ route, index }) => {
     <Layer
       id={route.id}
       key={route.id}
-      name={route.name}
       active={state.routeIndex === index}
       visible={!!state.image}
     >
       {route.items.map((item) => {
         const Item = Items[item.type];
-        return <Item {...item} id={item.id} key={item.id} selected={state.selection === item.id} />;
+        return (
+          <Item
+            {...item}
+            id={item.id}
+            key={item.id}
+            selected={state.selection === item.id}
+          />
+        );
       })}
     </Layer>
   );

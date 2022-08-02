@@ -15,9 +15,11 @@ export const Circle: FC = () => {
       if (state.scope) {
         circle.current = new state.scope.Path.Circle({
           ...defaultProps,
+          insert: true,
           center: event.point,
           radius: 10,
         });
+        state.scope.project.activeLayer.addChild(circle.current);
       }
     },
     [state.scope]

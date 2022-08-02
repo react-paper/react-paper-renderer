@@ -22,6 +22,7 @@ export const Pen: FC = () => {
         if (!path.current) {
           path.current = new state.scope.Path({
             ...defaultProps,
+            insert: true,
             segments: [event.point],
           });
         } else {

@@ -3,7 +3,7 @@ import Head from "next/head";
 import type { NextPage } from "next";
 
 import { Provider, Paper } from "components";
-import styles from "../styles/Editor.module.css";
+import styles from "../styles/Styles.module.css";
 
 const data = {
   id: "37ag863f-8530-4716-512d-5jr2bd3be5d2",
