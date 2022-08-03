@@ -150,6 +150,7 @@ export const Renderer = Reconciler({
     switch (type) {
       case Item.View:
         instance = scope.view;
+        instance.project = scope.project;
         break;
       case Item.Tool:
         instance = new scope.Tool();
@@ -244,12 +245,12 @@ export const Renderer = Reconciler({
       child.addTo(parent);
     }
     if (parent instanceof paper.View && child instanceof paper.Item) {
-      child.addTo(parent._project);
+      child.addTo(parent.project);
     }
   },
 
   finalizeInitialChildren: (instance: Instance, type: Type, props: Props) => {
-    if (instance instanceof paper.Tool) {
+    if (instance instanceof paper.View || instance instanceof paper.Tool) {
       applyProps(instance, props);
     }
     return false;
@@ -260,7 +261,7 @@ export const Renderer = Reconciler({
       child.addTo(parent);
     }
     if (parent instanceof paper.View && child instanceof paper.Item) {
-      child.addTo(parent._project);
+      child.addTo(parent.project);
     }
   },
 
@@ -311,7 +312,7 @@ export const Renderer = Reconciler({
 
   commitUpdate: (
     instance: Instance,
-    payload: any,
+    payload: unknown,
     type: Type,
     oldProps: Props,
     newProps: Props

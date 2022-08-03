@@ -20,14 +20,14 @@ export type Props = React.ComponentProps<"canvas"> & {
   onScopeReady?: (scope: paper.PaperScope) => void;
 };
 
-export const Canvas: React.FC<Props> = ({
+export const Canvas = ({
   children,
   width,
   height,
   settings,
   onScopeReady,
   ...other
-}) => {
+}: Props) => {
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const scope = useRef<paper.PaperScope | null>(null);
   const fiber = useRef<FiberRoot | null>(null);
@@ -51,6 +51,7 @@ export const Canvas: React.FC<Props> = ({
         console.error,
         null
       );
+      Renderer.updateContainer(null, fiber.current, null, () => null);
       if (typeof onScopeReady === "function") {
         onScopeReady(scope.current);
       }

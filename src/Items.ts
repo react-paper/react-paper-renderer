@@ -1,6 +1,4 @@
-import React from "react";
-
-type Component = string | React.FC<{ [key: string]: any }>;
+type Component = string | React.ElementType;
 
 export const View: Component = "View";
 export const Group: Component = "Group";
@@ -16,3 +14,36 @@ export const PointText: Component = "PointText";
 export const Raster: Component = "Raster";
 export const SymbolItem: Component = "SymbolItem";
 export const Tool: Component = "Tool";
+
+/*
+type Props<T> = {
+  [K in keyof T]?: T[K] extends paper.Color
+    ? paper.Color | string
+    : T[K] extends paper.Point
+    ? paper.Point | [number, number]
+    : T[K] extends paper.Size
+    ? paper.Size | [number, number]
+    : T[K];
+};
+
+type ItemProps = Props<paper.Item>;
+
+type RectangleProps = Props<paper.Rectangle>;
+
+type ViewProps = {
+  id?: number | string;
+  name?: string;
+  children?: React.ReactNode;
+};
+
+export interface PaperElements {
+  View: ViewProps;
+  Rectangle: ItemProps & RectangleProps;
+}
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements extends PaperElements {}
+  }
+}
+*/

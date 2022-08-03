@@ -12,6 +12,7 @@
     "isolatedModules": false,
     "skipLibCheck": true,
     "strict": true,
+    "lib": ["es2019", "dom"],
     "types": ["node", "jest"],
     "typeRoots": ["types", "node_modules/@types"]
   },
