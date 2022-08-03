@@ -1,7 +1,6 @@
 import React from "react";
 import Head from "next/head";
 import type { NextPage } from "next";
-
 import { Provider, Paper } from "components";
 import styles from "../styles/Styles.module.css";
 

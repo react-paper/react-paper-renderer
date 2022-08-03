@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Head from "next/head";
 import type { NextPage } from "next";
-
 import { Canvas, View, Layer, Rectangle } from "react-paper-renderer";
 import styles from "../styles/Styles.module.css";
 
@@ -17,21 +16,15 @@ function move(arr: any[], from: number, to: number) {
 }
 
 const Home: NextPage = () => {
-  const [rects, setRects] = useState([
-    { id: 1, center: [100, 100], fillColor: "red", size: [50, 50] },
-    { id: 2, center: [120, 120], fillColor: "green", size: [50, 50] },
-    { id: 3, center: [140, 140], fillColor: "orange", size: [50, 50] },
-  ]);
   const [visible, setVisible] = useState(true);
   const [visible2, setVisible2] = useState(true);
-  const [color, setColor] = useState("black");
-  const [color2, setColor2] = useState("white");
-  const onClick = () => {
-    setColor(color === "black" ? "white" : "black");
-  };
-  const onClick2 = () => {
-    setColor2(color2 === "black" ? "white" : "black");
-  };
+  const [color, setColor] = useState("blue");
+  const [color2, setColor2] = useState("purple");
+  const [rects, setRects] = useState([
+    { id: 1, center: [100, 100], size: [50, 50], fillColor: "red" },
+    { id: 2, center: [120, 120], size: [50, 50], fillColor: "green" },
+    { id: 3, center: [140, 140], size: [50, 50], fillColor: "orange" },
+  ]);
   return (
     <>
       <Head>
@@ -49,10 +42,10 @@ const Home: NextPage = () => {
             <View>
               <Layer>
                 <Rectangle
-                  center={[75, 75]}
+                  center={[275, 100]}
                   fillColor={color}
                   size={[50, 50]}
-                  onClick={onClick}
+                  onClick={() => setColor(color === "blue" ? "cyan" : "blue")}
                 />
                 {rects.map((rect) => (
                   <Rectangle
@@ -70,10 +63,12 @@ const Home: NextPage = () => {
             <View>
               <Layer>
                 <Rectangle
-                  center={[200, 100]}
+                  center={[200, 150]}
                   fillColor={color2}
                   size={[100, 100]}
-                  onClick={onClick2}
+                  onClick={() =>
+                    setColor2(color2 === "purple" ? "teal" : "purple")
+                  }
                 />
               </Layer>
             </View>
