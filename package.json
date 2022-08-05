@@ -1,5 +1,6 @@
 {
   "name": "react-paper-renderer",
+  "version": "0.0.3",
   "description": "Paper.js renderer for React",
   "author": "Bojan Hribernik <bojan.hribernik@gmail.com>",
   "license": "MIT",
