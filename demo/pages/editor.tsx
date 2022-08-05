@@ -4,6 +4,8 @@ import type { NextPage } from "next";
 import { Provider, Paper } from "components";
 import styles from "../styles/Styles.module.css";
 
+import Link from "next/link";
+
 const data = {
   id: "37ag863f-8530-4716-512d-5jr2bd3be5d2",
   width: 1920,
@@ -11,7 +13,7 @@ const data = {
   url: "/mr-bubbles.jpg",
   routes: [
     {
-      id: "route1",
+      id: "47dea029-5470-4c5a-a94a-61967cc46854",
       name: "Route 1",
       type: "Layer",
       items: [
@@ -44,6 +46,12 @@ const data = {
         },
       ],
     },
+    {
+      id: "8a0c22ee-16c8-4354-89c2-27bee9149ad4",
+      name: "Route 2",
+      type: "Layer",
+      items: [],
+    },
   ],
 };
 
@@ -55,6 +63,7 @@ const Editor: NextPage = () => {
         <meta name="description" content="react-paper-renderer demo" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Link href="/">Home</Link>
       <div className={styles.container}>
         <Provider>
           <Paper image={data} />

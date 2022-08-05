@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Head from "next/head";
+import Link from "next/link";
 import type { NextPage } from "next";
 import { Canvas, View, Layer, Rectangle } from "react-paper-renderer";
 import styles from "../styles/Styles.module.css";
@@ -32,6 +33,7 @@ const Home: NextPage = () => {
         <meta name="description" content="react-paper-renderer demo" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Link href="/editor">Editor</Link>
       <div className={styles.container}>
         <div>
           <button onClick={() => setVisible(!visible)}>canvas1</button>
